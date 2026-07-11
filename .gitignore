@@ -222,3 +222,6 @@ __marimo__/
 
 # Design artifacts are kept locally and not tracked by git
 design/
+
+# Notion private design source
+notion/content/design_outline.md
