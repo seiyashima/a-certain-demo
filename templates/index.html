@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Certain Demo</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <header class="hero">
+        <p class="eyebrow">Connector playground</p>
+        <h1>A Certain Demo</h1>
+        <p class="subtext">
+          Flask API + simple chat surface for trying connector or model wiring.
+        </p>
+      </header>
+
+      <section class="chat-card" aria-label="chat demo">
+        <div id="messages" class="messages" aria-live="polite"></div>
+
+        <form id="chat-form" class="composer">
+          <label for="message" class="sr-only">Message</label>
+          <textarea
+            id="message"
+            name="message"
+            rows="3"
+            placeholder="Type a message..."
+            required
+          ></textarea>
+          <div class="actions">
+            <button id="send-button" type="submit">Send</button>
+          </div>
+        </form>
+      </section>
+
+      <footer class="footer">
+        <small>Health endpoint: <code>/healthz</code></small>
+      </footer>
+    </main>
+
+    <template id="message-template">
+      <article class="bubble">
+        <p class="role"></p>
+        <p class="text"></p>
+      </article>
+    </template>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
