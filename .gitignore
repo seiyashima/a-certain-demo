@@ -225,3 +225,6 @@ design/private/
 
 # Notion private design source
 notion/content/design_outline.md
+
+# Local test data
+test/
