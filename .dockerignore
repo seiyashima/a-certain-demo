@@ -1,0 +1,13 @@
+.git
+.gitignore
+.pytest_cache/
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+test/
+tests/
+design/
+memo.md

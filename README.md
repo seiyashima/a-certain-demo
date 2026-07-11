@@ -1,12 +1,13 @@
 # a-certain-demo
 
-Simple FastAPI demo app for connector/model integration experiments.
+Simple FastAPI search gateway demo app for connector integration experiments.
 
 ## Features
 
 - Health check endpoint: `/healthz`
-- Demo chat endpoint: `POST /api/chat`
-- Browser UI for manual checks
+- Search gateway endpoint: `POST /api/search`
+- Connector catalog endpoint: `/api/connectors`
+- Browser UI for manual checks and search routing
 - Request-scoped logging with `X-Request-Id`
 
 ## Project Structure
@@ -47,7 +48,6 @@ Simple FastAPI demo app for connector/model integration experiments.
 ```sh
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
 python app.py
 ```
 
@@ -77,19 +77,19 @@ Expected response:
 {"status": "ok"}
 ```
 
-### Chat Endpoint
+### Search Endpoint
 
 ```sh
-curl -s -X POST http://127.0.0.1:8080/api/chat \
+curl -s -X POST http://127.0.0.1:8080/api/search \
 	-H 'Content-Type: application/json' \
 	-H 'X-Request-Id: demo-001' \
-	-d '{"message":"hello"}'
+	-d '{"subject":"admin-user","query":"runbook policy incident","target_system":"all"}'
 ```
 
 ## Tests
 
 ```sh
-pytest
+.venv/bin/python -m pytest -q
 ```
 
 ## Docker
@@ -132,5 +132,5 @@ Do not commit `.env` or any real token values.
 ## Deployment Notes
 
 - `Procfile` is included for PaaS platforms using process types.
-- Production serving should use `gunicorn` (already configured).
+- `Dockerfile` builds a slim runtime image and runs the FastAPI app with Uvicorn.
 - Do not commit secrets; keep them in environment variables.

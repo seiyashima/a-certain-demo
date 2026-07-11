@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,29 +9,81 @@
   <body>
     <main class="layout">
       <header class="hero">
-        <p class="eyebrow">Connector playground</p>
+        <p class="eyebrow">Cloud Run Search Gateway</p>
         <h1>コネクタ死活確認</h1>
         <p class="subtext">
-          FastAPI + simple chat surface for trying connector or model wiring.
+          ACL を通して 5 つの外部接続先へ検索クエリを配送するデモアプリ。
         </p>
       </header>
 
-      <section class="chat-card" aria-label="chat demo">
-        <div id="messages" class="messages" aria-live="polite"></div>
-
-        <form id="chat-form" class="composer">
-          <label for="message" class="sr-only">Message</label>
-          <textarea
-            id="message"
-            name="message"
-            rows="3"
-            placeholder="Type a message..."
-            required
-          ></textarea>
-          <div class="actions">
-            <button id="send-button" type="submit">Send</button>
+      <section class="search-shell" aria-label="search gateway demo">
+        <article class="search-card">
+          <div class="card-head">
+            <div>
+              <p class="section-label">Search console</p>
+              <h2>検索要求を投げる</h2>
+            </div>
+            <button id="run-search-demo" type="button">Run Search Demo</button>
           </div>
-        </form>
+
+          <form id="search-form" class="search-form">
+            <div class="field-grid">
+              <label class="field" for="subject">
+                <span>Subject</span>
+                <input
+                  id="subject"
+                  name="subject"
+                  type="text"
+                  value="admin-user"
+                  placeholder="e.g. admin-user"
+                  required
+                />
+              </label>
+
+              <label class="field" for="target-system">
+                <span>Target system</span>
+                <select id="target-system" name="target_system">
+                  <option value="all">All connectors</option>
+                  <option value="servicenow">ServiceNow</option>
+                  <option value="workday">Workday</option>
+                  <option value="compliance-system">Compliance System</option>
+                  <option value="sharepoint">SharePoint</option>
+                  <option value="confluence">Confluence</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="field" for="query">
+              <span>Query</span>
+              <textarea
+                id="query"
+                name="query"
+                rows="4"
+                placeholder="Search for policy review, incidents, runbooks..."
+                required
+              >policy review</textarea>
+            </label>
+
+            <div class="actions">
+              <button id="search-button" type="submit">Search</button>
+            </div>
+          </form>
+
+          <div class="connector-strip" id="connector-strip" aria-live="polite"></div>
+        </article>
+
+        <article class="results-card">
+          <div class="card-head">
+            <div>
+              <p class="section-label">Search results</p>
+              <h2>ACL と検索結果</h2>
+            </div>
+            <span id="result-status" class="status-pill" data-status="idle">idle</span>
+          </div>
+
+          <p class="ops-note" id="result-summary">No search executed yet</p>
+          <div id="results" class="result-grid"></div>
+        </article>
       </section>
 
       <section class="ops-card" aria-label="runtime checks">
@@ -58,6 +110,10 @@
             <dd id="meta-environment">-</dd>
           </div>
           <div>
+            <dt>Connectors</dt>
+            <dd id="meta-connector-count">-</dd>
+          </div>
+          <div>
             <dt>Uptime</dt>
             <dd id="meta-uptime">-</dd>
           </div>
@@ -66,7 +122,8 @@
         <ul class="check-list">
           <li><span>GET /healthz</span><strong id="check-healthz">pending</strong></li>
           <li><span>GET /api/runtime</span><strong id="check-runtime">pending</strong></li>
-          <li><span>POST /api/chat</span><strong id="check-chat">pending</strong></li>
+          <li><span>GET /api/connectors</span><strong id="check-connectors">pending</strong></li>
+          <li><span>POST /api/search</span><strong id="check-search">pending</strong></li>
         </ul>
 
         <p class="ops-note" id="last-checked">Not checked yet</p>
@@ -76,13 +133,6 @@
         <small>Health endpoint: <code>/healthz</code></small>
       </footer>
     </main>
-
-    <template id="message-template">
-      <article class="bubble">
-        <p class="role"></p>
-        <p class="text"></p>
-      </article>
-    </template>
 
     <script src="/static/app.js"></script>
   </body>

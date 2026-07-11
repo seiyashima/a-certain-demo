@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import time
 import uuid
 from typing import Any
@@ -8,6 +9,157 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel, Field
+
+
+CONNECTORS: dict[str, dict[str, Any]] = {
+    "servicenow": {
+        "label": "ServiceNow",
+        "description": "Incidents, requests, and operational workflows",
+        "keywords": ["incident", "ticket", "request", "change", "ops"],
+        "documents": [
+            {
+                "title": "INC-2048 VPN outage follow-up",
+                "snippet": "Incident response notes and remediation steps for the VPN outage.",
+                "tags": ["incident", "ops"],
+            },
+            {
+                "title": "CHG-3311 maintenance window",
+                "snippet": "Approved change record for the monthly maintenance window.",
+                "tags": ["change", "request"],
+            },
+        ],
+    },
+    "workday": {
+        "label": "Workday",
+        "description": "Employee records, payroll, and HR workflows",
+        "keywords": ["payroll", "pto", "employee", "benefits", "hr"],
+        "documents": [
+            {
+                "title": "Payroll adjustment guide",
+                "snippet": "Steps for correcting payroll entries with manager approval.",
+                "tags": ["payroll", "hr"],
+            },
+            {
+                "title": "PTO request policy",
+                "snippet": "Vacation request guidance and approval routing.",
+                "tags": ["pto", "policy"],
+            },
+        ],
+    },
+    "compliance-system": {
+        "label": "Compliance System",
+        "description": "Reviews, policies, and audit evidence",
+        "keywords": ["compliance", "policy", "audit", "review", "violation"],
+        "documents": [
+            {
+                "title": "Policy exception review",
+                "snippet": "Compliance review notes for a policy exception request.",
+                "tags": ["review", "policy"],
+            },
+            {
+                "title": "Audit evidence checklist",
+                "snippet": "Required evidence for internal and external audits.",
+                "tags": ["audit", "evidence"],
+            },
+        ],
+    },
+    "sharepoint": {
+        "label": "SharePoint",
+        "description": "Documents, templates, and shared folders",
+        "keywords": ["document", "template", "folder", "policy", "sharepoint"],
+        "documents": [
+            {
+                "title": "New joiner checklist",
+                "snippet": "Shared onboarding checklist for hiring managers.",
+                "tags": ["document", "template"],
+            },
+            {
+                "title": "Policy template library",
+                "snippet": "Centralized templates for team-owned policy drafts.",
+                "tags": ["policy", "template"],
+            },
+        ],
+    },
+    "confluence": {
+        "label": "Confluence",
+        "description": "Runbooks, design notes, and knowledge pages",
+        "keywords": ["runbook", "design", "knowledge", "adr", "confluence"],
+        "documents": [
+            {
+                "title": "Search gateway runbook",
+                "snippet": "Operational notes for the Cloud Run search gateway.",
+                "tags": ["runbook", "ops"],
+            },
+            {
+                "title": "Connector ADR digest",
+                "snippet": "Architecture notes for connector routing and ACL checks.",
+                "tags": ["adr", "design"],
+            },
+        ],
+    },
+}
+
+
+def normalize_text(value: str) -> str:
+    return re.sub(r"\s+", " ", value.strip())
+
+
+def determine_allowed_targets(subject: str) -> list[str]:
+    subject_lower = subject.lower()
+
+    if any(keyword in subject_lower for keyword in ("admin", "ops")):
+        return list(CONNECTORS)
+    if "compliance" in subject_lower:
+        return ["servicenow", "compliance-system", "sharepoint", "confluence"]
+    if "hr" in subject_lower:
+        return ["workday", "sharepoint", "confluence"]
+    return ["sharepoint", "confluence"]
+
+
+def search_documents(query: str, connector_name: str) -> list[dict[str, Any]]:
+    connector = CONNECTORS[connector_name]
+    query_lower = query.lower()
+    matched_documents: list[dict[str, Any]] = []
+
+    for document in connector["documents"]:
+        haystack = " ".join(
+            [document["title"], document["snippet"], " ".join(document.get("tags", [])), " ".join(connector["keywords"])]
+        ).lower()
+        score = sum(1 for keyword in connector["keywords"] if keyword in query_lower)
+
+        if query_lower in haystack:
+            score += 2
+
+        if query_lower and (query_lower in haystack or score > 0):
+            matched_documents.append({
+                "title": document["title"],
+                "snippet": document["snippet"],
+                "tags": document.get("tags", []),
+                "score": score,
+            })
+
+    if not matched_documents and query_lower:
+        return []
+
+    if not query_lower:
+        return [
+            {
+                "title": document["title"],
+                "snippet": document["snippet"],
+                "tags": document.get("tags", []),
+                "score": 0,
+            }
+            for document in connector["documents"]
+        ]
+
+    return matched_documents
+
+
+class SearchRequest(BaseModel):
+    subject: str = Field(min_length=1)
+    query: str = Field(min_length=1)
+    target_system: str = Field(default="all")
 
 
 def create_app() -> FastAPI:
@@ -57,7 +209,87 @@ def create_app() -> FastAPI:
             "project": os.getenv("GOOGLE_CLOUD_PROJECT", "local"),
             "environment": os.getenv("APP_ENV", "development"),
             "demo_mode": os.getenv("DEMO_MODE", "echo"),
+            "connector_count": len(CONNECTORS),
             "uptime_ms": uptime_ms,
+        }
+
+    @app.get("/api/connectors")
+    def connectors() -> dict[str, Any]:
+        return {
+            "status": "ok",
+            "connectors": [
+                {
+                    "key": connector_name,
+                    "label": connector["label"],
+                    "description": connector["description"],
+                }
+                for connector_name, connector in CONNECTORS.items()
+            ],
+        }
+
+    @app.post("/api/search")
+    async def search(request: SearchRequest) -> dict[str, Any]:
+        request_id = str(uuid.uuid4())
+        started = time.time()
+
+        subject = normalize_text(request.subject)
+        query = normalize_text(request.query)
+        target_system = request.target_system.strip().lower() or "all"
+
+        if not subject or not query:
+            raise HTTPException(
+                status_code=400,
+                detail={"error": "subject and query are required", "request_id": request_id},
+            )
+
+        if target_system != "all" and target_system not in CONNECTORS:
+            raise HTTPException(
+                status_code=400,
+                detail={"error": "target_system is invalid", "request_id": request_id},
+            )
+
+        allowed_targets = determine_allowed_targets(subject)
+        requested_targets = list(CONNECTORS) if target_system == "all" else [target_system]
+        denied_targets = [connector_name for connector_name in requested_targets if connector_name not in allowed_targets]
+
+        if denied_targets:
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": "access denied",
+                    "request_id": request_id,
+                    "subject": subject,
+                    "allowed_targets": allowed_targets,
+                    "denied_targets": denied_targets,
+                },
+            )
+
+        results = []
+        for connector_name in requested_targets:
+            connector = CONNECTORS[connector_name]
+            documents = search_documents(query, connector_name)
+            results.append(
+                {
+                    "key": connector_name,
+                    "label": connector["label"],
+                    "description": connector["description"],
+                    "documents": documents,
+                    "hit_count": len(documents),
+                    "route_reason": "all targets" if target_system == "all" else "explicit target",
+                }
+            )
+
+        elapsed_ms = int((time.time() - started) * 1000)
+
+        return {
+            "status": "ok",
+            "request_id": request_id,
+            "subject": subject,
+            "query": query,
+            "target_system": target_system,
+            "allowed_targets": allowed_targets,
+            "results": results,
+            "elapsed_ms": elapsed_ms,
         }
 
     @app.post("/api/chat")

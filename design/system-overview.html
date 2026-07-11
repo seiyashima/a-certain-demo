@@ -10,9 +10,9 @@
     <main class="page">
       <section class="card">
         <p class="badge">System Overview</p>
-        <h1>Cloud Run 稼働アプリ 概要設計</h1>
+        <h1>Cloud Run 検索基盤 概要設計</h1>
         <p class="muted">
-          対象: Gemini Enterprise Agent Platform 連携の呼び出し先として稼働する Flask アプリ
+          対象: ACL チェックと検索クエリ配送を共通化した Cloud Run 上の検索ゲートウェイ
         </p>
       </section>
 
@@ -20,14 +20,14 @@
         <article class="card">
           <h2>1. 目的</h2>
           <p>
-            Cloud Run 上で API と確認画面を提供し、Gemini Enterprise からの呼び出し経路と、
-            人手での稼働確認経路を同時に確保する。
+            Cloud Run 上で共通の投げ口を提供し、ACL 判定・検索クエリ正規化・監査ログを
+            1 つにまとめたうえで、各検索システムへ安全に振り分ける。
           </p>
           <div class="note">
-            稼働確認画面では health/runtime/chat の3点を即時判定できることを重視する。
+            共通部品は「ACL チェック」「クエリ整形」「ルーティング」「監査」の 4 つに分ける。
           </div>
           <p>
-            Cloud Run 上のアプリは Search API と Ops UI を責務分離し、必要に応じて同期用 Worker を別サービスとして運用する。
+            各システム固有の違いはアダプタ側に閉じ込め、共通層は入力と出力の形を固定する。
           </p>
         </article>
 
@@ -35,42 +35,74 @@
           <h2>2. 非機能要件</h2>
           <ul>
             <li>Cloud Run の自動スケールに追従できるステートレス構成</li>
-            <li>Request ID ベースのログ相関</li>
-            <li>環境変数による挙動制御</li>
-            <li>障害時に UI と API の両面で切り分け可能</li>
+            <li>Request ID ベースのログ相関と監査証跡の保存</li>
+            <li>ACL 失敗時は検索実行前に必ず遮断する</li>
+            <li>タイムアウト、リトライ、エラー形式を共通化する</li>
           </ul>
         </article>
       </section>
 
       <section class="card" style="margin-top: 1rem">
-        <h2>3. コンポーネント構成</h2>
-        <table class="kv">
+        <h2>3. 構成図</h2>
+        <div class="diagram" aria-label="common gateway and adapters">
+          <div class="diagram-row">
+            <div class="diagram-node">
+              <strong>Client / Gateway</strong>
+              <div class="subtle">検索要求の受付・認証・監査ログ起点</div>
+            </div>
+            <div class="diagram-arrow">→</div>
+            <div class="diagram-node">
+              <strong>Common Layer</strong>
+              <div class="subtle">ACL Check / Query Normalize / Router / Retry / Error Normalize</div>
+            </div>
+            <div class="diagram-arrow">→</div>
+            <div class="diagram-node">
+              <strong>External Connectors</strong>
+              <div class="subtle">ServiceNow / Workday / Compliance System / SharePoint / Confluence へ分岐</div>
+            </div>
+          </div>
+
+          <div class="diagram-row">
+            <div class="diagram-node">
+              <strong>Audit & Trace</strong>
+              <div class="subtle">request_id / trace_id / decision log を共通保存</div>
+            </div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-node">
+              <strong>Response Normalizer</strong>
+              <div class="subtle">各システムの結果を共通スキーマへ整形</div>
+            </div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-node">
+              <strong>Client Response</strong>
+              <div class="subtle">documents / acl_result / errors / trace を返却</div>
+            </div>
+          </div>
+        </div>
+
+        <table class="swimlane">
           <thead>
             <tr>
-              <th>コンポーネント</th>
-              <th>役割</th>
+              <th>層</th>
+              <th>責務</th>
+              <th>分割の方針</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <th>Flask App</th>
-              <td>Cloud Run で動くアプリ本体。エンドポイント提供、例外ハンドリング、ログ出力</td>
+              <th><span class="scope">Shared</span> 共通オーケストレータ</th>
+              <td>ACL 判定、クエリ正規化、ルーティング、監査ログ、共通エラー整形</td>
+              <td>各システムから切り離して、投げ口を 1 つに保つ</td>
             </tr>
             <tr>
-              <th>/healthz</th>
-              <td>基本的な liveness/readiness 判定</td>
+              <th><span class="scope">Adapter</span> 外部接続先 5 系統</th>
+              <td>システム固有クエリ生成、ACL 解釈、外部 API 呼び出し、レスポンス変換</td>
+              <td>差分を吸収する境界層として独立させる</td>
             </tr>
             <tr>
-              <th>/api/runtime</th>
-              <td>Cloud Run 実行情報と稼働状況の可視化</td>
-            </tr>
-            <tr>
-              <th>/api/chat</th>
-              <td>Gemini Enterprise 側呼び出しの入口（現時点は demo echo）</td>
-            </tr>
-            <tr>
-              <th>Verification UI (/)</th>
-              <td>人手での稼働確認画面。health/runtime/chat をワンクリック検証</td>
+              <th><span class="scope">Config</span> 設定層</th>
+              <td>接続先、タイムアウト、リトライ回数、ACL マッピング、機能フラグ</td>
+              <td>環境差分はコードに埋め込まず設定で切り替える</td>
             </tr>
           </tbody>
         </table>
@@ -78,49 +110,95 @@
 
       <section class="card" style="margin-top: 1rem">
         <h2>4. 代表フロー</h2>
-        <h3>4-1. 人手による稼働確認</h3>
+        <h3>4-1. 共通検索フロー</h3>
         <ol class="timeline">
-          <li>利用者がトップページへアクセス</li>
-          <li>画面が /healthz と /api/runtime をチェック</li>
-          <li>必要に応じて /api/chat へテストリクエスト送信</li>
-          <li>結果を OK/FAILED とメタ情報で表示</li>
+          <li>クライアントが共通の投げ口へ検索要求を送る</li>
+          <li>共通層が ACL を確認し、通過した検索条件を正規化する</li>
+          <li>対象システムを決めてアダプタにルーティングする</li>
+          <li>結果を共通スキーマへ整形して返却する</li>
         </ol>
 
-        <h3>4-2. Gemini Enterprise 呼び出し</h3>
+        <h3>4-2. 失敗時の扱い</h3>
         <ol class="timeline">
-          <li>Gemini Enterprise が API エンドポイントへリクエスト</li>
-          <li>Flask が入力検証・処理実行</li>
-          <li>レスポンス返却と request_id ベースのログ記録</li>
+          <li>ACL 失敗は検索実行前に遮断する</li>
+          <li>外部 API 失敗は共通エラーコードへ変換する</li>
+          <li>監査ログには判定理由と trace を残す</li>
         </ol>
       </section>
 
       <section class="card" style="margin-top: 1rem">
-        <h2>5. API 契約（初版）</h2>
+        <h2>5. 共通インターフェース（初版）</h2>
         <table class="kv">
           <tbody>
             <tr>
-              <th>GET /healthz</th>
-              <td>{"status": "ok"}</td>
+              <th>入力</th>
+              <td>subject, query, target_system, acl_context, correlation_id</td>
             </tr>
             <tr>
-              <th>GET /api/runtime</th>
-              <td>status, service, revision, project, environment, demo_mode, uptime_ms</td>
+              <th>出力</th>
+              <td>status, documents, matched_acl, normalized_error, trace</td>
             </tr>
             <tr>
-              <th>POST /api/chat</th>
-              <td>request body: {"message": "..."} / response: reply, request_id, elapsed_ms</td>
+              <th>共通ルール</th>
+              <td>ACL 失敗時は検索せず、各システムのレスポンスは共通形式へ正規化する</td>
             </tr>
           </tbody>
         </table>
       </section>
 
       <section class="card" style="margin-top: 1rem">
-        <h2>6. 今後の拡張候補</h2>
+        <h2>6. 非機能・セキュリティ・監視</h2>
         <ul>
-          <li>Gemini Enterprise 実接続向けの認証方式・権限制御設計</li>
-          <li>監査向けアクセスログとメトリクス収集の標準化</li>
-          <li>疎通確認画面のチェック履歴保存とアラート連携</li>
+          <li>Cloud Run の自動スケールに追従できるステートレス構成と短時間起動を前提にする</li>
+          <li>長期資格情報を持たず、WIF と Secret Manager に接続情報を寄せる</li>
+          <li>health / runtime / search / connectors の疎通確認、成功・失敗観測、処理時間記録を運用指標にする</li>
         </ul>
+      </section>
+
+      <section class="card" style="margin-top: 1rem">
+        <h2>7. 要件対応表（2 / 3 / 4 / 6 / 7 / 8）</h2>
+        <p class="muted">要件 1 は本資料の対象外として、取り込み基盤側に分離する。</p>
+        <table class="swimlane">
+          <thead>
+            <tr>
+              <th>要件</th>
+              <th>対応方針</th>
+              <th>現状の扱い</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>2. データ取り込み機能</th>
+              <td>取り込みは本設計の外側で別サービス化し、再インデックス API で連携する</td>
+              <td>system-overview では対象外として分離する</td>
+            </tr>
+            <tr>
+              <th>3. 権限・認可機能</th>
+              <td>Okta SSO と元システム ACL を共通層で解釈し、検索前に遮断する</td>
+              <td>ACL 判定とマッピング方針を共通層の責務に含める</td>
+            </tr>
+            <tr>
+              <th>4. 運用機能</th>
+              <td>health / runtime / search / connectors の疎通確認 UI を別カードとして提供する</td>
+              <td>検索基盤本体とは分けて、運用補助として併設する</td>
+            </tr>
+            <tr>
+              <th>6. 非機能要件</th>
+              <td>ステートレス、短時間起動、リトライ可能、機密情報非保持を前提にする</td>
+              <td>6. 非機能・セキュリティ・監視 に反映済み</td>
+            </tr>
+            <tr>
+              <th>7. セキュリティ要件</th>
+              <td>長期資格情報を持たず、WIF と Secret Manager に寄せる</td>
+              <td>6. 非機能・セキュリティ・監視 に反映済み</td>
+            </tr>
+            <tr>
+              <th>8. 監視・品質確認</th>
+              <td>疎通確認、成功/失敗観測、処理時間記録、回帰検出を運用指標にする</td>
+              <td>6. 非機能・セキュリティ・監視 と運用 UI で補う</td>
+            </tr>
+          </tbody>
+        </table>
       </section>
 
       <section class="card" style="margin-top: 1rem">
