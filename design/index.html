@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>a-certain-demo Design Docs</title>
+    <link rel="stylesheet" href="./assets/style.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="card">
+        <p class="badge">Design Docs</p>
+        <h1>a-certain-demo 設計ドキュメント</h1>
+        <p class="muted">
+          Gemini Enterprise から呼び出される Cloud Run アプリとしての設計情報を、段階的に蓄積するための入口ページです。
+        </p>
+      </section>
+
+      <section class="card" style="margin-top: 1rem">
+        <h2>ドキュメント一覧</h2>
+        <ul>
+          <li>
+            <a href="./connector-architecture.html">連携アーキテクチャ設計</a>
+            : 認証、ACL、監査、Connector 分離
+          </li>
+          <li>
+            <a href="./system-overview.html">システム概要設計</a>
+            : 目的、構成、API、運用確認方針
+          </li>
+        </ul>
+      </section>
+
+      <section class="card footer">
+        <strong>更新ルール</strong>
+        <ul>
+          <li>仕様変更時は該当 HTML を更新し、コミットに含める</li>
+          <li>運用手順は README と重複させず、設計判断と背景を中心に書く</li>
+          <li>新規ドキュメントはこのページからリンクする</li>
+          <li>機密要件は design/private に分離し、公開一覧には載せない</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>
