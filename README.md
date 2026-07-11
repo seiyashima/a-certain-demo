@@ -14,6 +14,16 @@ Simple Flask demo app for connector/model integration experiments.
 ```
 .
 ├── app.py
+├── notion/
+│   ├── __main__.py
+│   ├── cli.py
+│   ├── client.py
+│   ├── blocks.py
+│   ├── actions/
+│   │   └── publish_design.py
+│   ├── content/
+│   │   ├── design.py
+│   │   └── design_outline.md
 ├── requirements.txt
 ├── Dockerfile
 ├── Procfile
@@ -48,6 +58,9 @@ Open `http://127.0.0.1:8080`.
 - `PORT` (default: `8080`)
 - `LOG_LEVEL` (default: `INFO`)
 - `DEMO_MODE` (default: `echo`)
+- `NOTION_API_TOKEN` (Notion API integration token)
+- `NOTION_PAGE_ID` (target Notion page ID)
+- `NOTION_ACTION` (`title` or `publish_design`)
 
 ## API
 
@@ -84,6 +97,30 @@ pytest
 docker build -t a-certain-demo .
 docker run --rm -p 8080:8080 a-certain-demo
 ```
+
+## Notion Integration
+
+Create a local `.env` file from `.env.example` and set the Notion variables.
+
+```sh
+cp .env.example .env
+```
+
+To verify the configured page title:
+
+```sh
+python3 -m notion
+```
+
+To append the design outline blocks to the target page:
+
+```sh
+NOTION_ACTION=publish_design python3 -m notion
+```
+
+The design memo itself lives in `notion/content/design_outline.md` and is converted to Notion blocks at runtime.
+
+Do not commit `.env` or any real token values.
 
 ## Deployment Notes
 

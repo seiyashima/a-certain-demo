@@ -217,5 +217,8 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# Private design artifacts that should not be committed
-design/private/
+# macOS Finder metadata
+.DS_Store
+
+# Design artifacts are kept locally and not tracked by git
+design/
