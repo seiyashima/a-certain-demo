@@ -36,3 +36,21 @@ def test_chat_returns_echo_reply():
     assert body["reply"] == "Echo: hello"
     assert "request_id" in body
     assert "elapsed_ms" in body
+
+
+def test_runtime_endpoint_returns_metadata():
+    app = create_app()
+    app.testing = True
+    client = app.test_client()
+
+    response = client.get("/api/runtime")
+
+    assert response.status_code == 200
+    body = response.get_json()
+    assert body["status"] == "ok"
+    assert "service" in body
+    assert "revision" in body
+    assert "project" in body
+    assert "environment" in body
+    assert "demo_mode" in body
+    assert "uptime_ms" in body

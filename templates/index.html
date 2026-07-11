@@ -34,6 +34,44 @@
         </form>
       </section>
 
+      <section class="ops-card" aria-label="runtime checks">
+        <div class="ops-header">
+          <h2>Runtime Checks</h2>
+          <button id="run-checks" type="button">Run Checks</button>
+        </div>
+
+        <dl class="runtime-meta">
+          <div>
+            <dt>Service</dt>
+            <dd id="meta-service">-</dd>
+          </div>
+          <div>
+            <dt>Revision</dt>
+            <dd id="meta-revision">-</dd>
+          </div>
+          <div>
+            <dt>Project</dt>
+            <dd id="meta-project">-</dd>
+          </div>
+          <div>
+            <dt>Environment</dt>
+            <dd id="meta-environment">-</dd>
+          </div>
+          <div>
+            <dt>Uptime</dt>
+            <dd id="meta-uptime">-</dd>
+          </div>
+        </dl>
+
+        <ul class="check-list">
+          <li><span>GET /healthz</span><strong id="check-healthz">pending</strong></li>
+          <li><span>GET /api/runtime</span><strong id="check-runtime">pending</strong></li>
+          <li><span>POST /api/chat</span><strong id="check-chat">pending</strong></li>
+        </ul>
+
+        <p class="ops-note" id="last-checked">Not checked yet</p>
+      </section>
+
       <footer class="footer">
         <small>Health endpoint: <code>/healthz</code></small>
       </footer>

@@ -9,6 +9,7 @@ from flask import Flask, jsonify, render_template, request
 
 def create_app() -> Flask:
     app = Flask(__name__)
+    started_at = time.time()
 
     log_level_name = os.getenv("LOG_LEVEL", "INFO").upper()
     log_level = getattr(logging, log_level_name, logging.INFO)
@@ -33,6 +34,25 @@ def create_app() -> Flask:
     @app.route("/healthz")
     def healthz() -> tuple[dict[str, str], int]:
         return {"status": "ok"}, 200
+
+    @app.route("/api/runtime")
+    def runtime() -> tuple[Any, int]:
+        uptime_ms = int((time.time() - started_at) * 1000)
+        return (
+            jsonify(
+                {
+                    "status": "ok",
+                    "service": os.getenv("K_SERVICE", "local"),
+                    "revision": os.getenv("K_REVISION", "local"),
+                    "configuration": os.getenv("K_CONFIGURATION", "local"),
+                    "project": os.getenv("GOOGLE_CLOUD_PROJECT", "local"),
+                    "environment": os.getenv("APP_ENV", "development"),
+                    "demo_mode": os.getenv("DEMO_MODE", "echo"),
+                    "uptime_ms": uptime_ms,
+                }
+            ),
+            200,
+        )
 
     @app.route("/api/chat", methods=["POST"])
     def chat() -> tuple[Any, int]:
