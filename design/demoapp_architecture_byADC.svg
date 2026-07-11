@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<svg fill="rgb(241, 244, 249)" width="1600" height="900" viewBox="0 0 1200 675" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<defs><image id="dedup-img-0" width="20" height="20" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAD90lEQVR42szWS6xV1RkH8N/a+9x7KTS00NAHTSlp09LQJk1JIE1J2gpqND5AjRMdycA4NHGG6EBFHeDAOCdOcGJQwBCfIJhgBHzhQAMDwyWS+EATiLmHu885e5mD6+jiuM+9eDHRlaysvb+19/r+6///vm+two/cWgDPHK3cvHq8PwYE1CP+CYiAC/9cTmtiIKJGOcN8mQP/oQCEtNgK/BW9DMig/QLL0lwL4XJBFA3Pv8Lb2IY/ooci9QrbcRu6+X99EHMBkgOoAUfwBe7Be9iS5lpo4yB2YGsWK625SlI0aNvFG2lciAfwa1SAp9HBZuzD8vTtnCQpGiIcXkML5wFXQLIdxzH08H8cxoa5SjIMoAYcQsx2dV0GIOJZlJhO7OzCI3ORJOQvqQZETOAElgFO4y+JkYiVKT6K9C4978cmTKKVsTKyXhQjcnwaRwAd/B5rMlY+wDtZUSrQxbokyY3pPcwmSTEDKwcBPcC1DTJIzwN7D7/BbmzNZB0pSROAGvA6IsYA1yCgA8lJb6hQlahT34yXk4zdUSAuApB0iqfO1PA+PsoW/UevtiJz2p9/FyHZ8jUHkqyPHK6j6xdMhO6et7rF5Jk6wLa950efBcuXFCX6XxwtAkVQFUE5MeZqiIx9PdiV5mMa894qgl4Z/LZVeG66Ex988q6z9cnPYqy6wlQ1QoJOj+muAL3aK+2KdiX0x3PtuAHmtXShLOxsd3TalbJdienbvPftdb9PVbZsP7j40NJF4U9LFwULxgW5LoO2/UD1DZCyoJUpXIZgqop9gCZaFwCaPz6czM0txv63wZKFwY5DHav/XM7IQEwMXJl2EhMDuxMDrcTALe2OsXalN2BpqPftRb9PVR7aeff8tb/7ZfgwMRBHpuHyJUUP87A66Tne13NizEsQ6SBgY5oPDTHQLYKyDD5uFW6Y7sT7Hn9xupg8E0PVFQcxcBF567Z+CQVqrMKbvr0THMO/UKCHvydbMbRODSiwD5twargy7r/35yOzYGD7z1DevzBUFzagHErB/O7wMK6ayXljECIC/gcoAc9DVmJvGqqcg2LzCe7EHoSsJnzHeROAgB4msAbSjk/jCAK6WJnkiEMnYNNhFJscD9M90D9AcvCHDPl+tBMw2IgSVUb5o4nyyZkoH26tBkA11ma7LbG3gf4BU58myndfCuWzAYiA/6KLecn2agbgb/gnShzAHTiZnYb1pThuvJZn1+1/p/Ec7k+7HAfcirEU5esz57PqPRsDg/xeg8V4DE9gMqP1Zyk7bsdTc6F8JgA14HOswgkYyvXxocLyvSmf8VqeFjmenJcZK4N2Njkv50r5bEEIoeGS0VQrXK7zn0T7agA9AKW4nZx6BwAAAABJRU5ErkJggg==" /><image id="dedup-img-1" width="20" height="20" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAC+0lEQVR42uzXTWhdRRQH8N/cexttEytFRBcRbXGjiFilQtRNQ/1YiTsVhCKKghvdiJCHupC4E3Wj4hcFUVwXFwomQsGFWLNzU8XuFMRS0CgleXdGXt7c5/X1pnnUFDc5MJxz7pz3P2fmnDkzr/A/004AOwFU84urlnszBhyhy2i5N5Mau0loAszUzFfjE9u5uoC0BWY1lo6pjkBq9C8ygJCY+icWAbCGCAVKwBx+wCmcxo+Zvw8tu0mohDjEbGOdyj7mGrv2DuzGLCCiRol9/yELU7imtfqi5eu8U7COiBO4DgcyP5qLqc7c4cwH+nyH3LL9OmPckPkJxOzrvBqAAufwc3c9bVZn45QQQnbUxjo3tuh/K61vTUFWLcQC5ZFX/xIo5xdXC6S8+hKFGLMcApIEdqFq4W7diJZ7MxFr6ON5vN7URUwR6qx/godHelGEoVwFLAluwTr6GXOiTth8ux934UbcjIN4KCXwKG7CbdiPe3EIYTjX35/1WTyIA+hsStUmeYV78HTL7gscL4rieErxKN7AZXgOAS8Evk+8ghnAB/m3j+CnSVNQA17Efbga+/A4nkwpVnjA0NGV2I1bcSyxlnfsM1yBX3dNFdfiqzHsiS6jy/EpPsTLOIar0M9OXsNTOImPUKLGETyBxzC7vhZfmrQVj1PEm/hYSr8L4TeshSSm4E88i/fwJQ4LIUkp4Q88s/E7zuTd2+wYd9dAPlY13iYRQsBbkAL4Be+gxOk8GvomjxKfA3bNL67GriLsSkEfdR4IkFBCSEXzsRTUI3l4fEf3SwihrkLR7rKdl1rRUYB7cXtrXE8BceAghQ1HaeBgeWFGCCEFA3kaBCEiLi1M66e4BwdxR8baO16IxdjFUWIO37XGu8u9PSPbLFtamB7xpd5Q3tB70yNb3I0VnMxYcyizL1AhAc5mwyZXzW24chGPlQQ4g28RUbRa+llAqvKk7PzQFqdiUmpsV3DnheyqTbqgbXyqhQvhXdI34SXE3D7a+WOyE8DfAwA32AAYq71arQAAAABJRU5ErkJggg==" /><image id="dedup-img-2" width="20" height="20" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAFBUlEQVR42szXXYhdVxUH8N8+59y5986dTDNJE0200KYxUdSHgLFpWklJC6WlBg02oKAPCg2oDyoiWN8E+6IIaislIrYqMVVpXrSlSRO1KaZthAaNhprGINpQM6PNfM/9OGdL03Ph9jYzuaOC3XDYH2ev9V97/fdae+/E/7lk/QOPnmj1dlNADrB769CSCnd+bWZJ+aNfGVnagL6S/5cLvKL8YhQEwE3Y0Tc2SOnO3Yabl5LPFhGOGMbjqGItJpE9eqIVe1d2/6E3UBbK/3UcB4xiukf3QBRUkaNdtqEzoMsDmvg0MsxdDnyQPTBUfgFwGxIc6lPYbd+KtPwf8Yeyny+HAgil1X9HDVNlfbjr0iKafu5snr19deL8v4q8iOp4EtBAjqOoYAwXB6Ug9rhwKxLMl/XHkUVm00R4ZTZ2ahXauZAlFuJr/yvl/FFMoo6h5URBgFLRfvwMNRQ4h7MzC7FojIQYgjvwwa3XV2Kainip9FoEDJff4Imoz7h3leChrJ+Ga69OGvceaHbefU3yGHSKojExFYuVjXAYKVZiFqdR7YmAgQzopeC9ZbtLwUeQFdF8sxkj7kYlS82vGglXFdEkKiXoq+1beuQvGwVLUTCEx3EEdRQAn/zBbNy1YwimMPmNh1qxZ/ONlHPTUvY3pfxlk9GVDqMxrEIslf8cB/Z9ojH62PFWBU/gl3v3VFbMt83geZwsDQvIUFnuHuhS0MINSLBQGjOBoYtzsXr9qmQqcGckeXkyzp48lxc3vCO9HUkpq0e+NRAF5UkYAFUcw7M9WXElRmHHlgqseLW/0MqL7ZvTKn6L36GGDMdxIgnqjWqAcM/35wY+jGL55YAZHMbR0Xq4+NwLnUbkAPZfuyYbm1mIOcbxDxQ9nsxguCoA9BqxGAURLWwt53QAe9q5NE2061WNZts46nlhqN3RGam5Ky9eo2/TusT0Qrxx7VVJe3yyMFIPxqfiFRNRt/+t0vXvR6ccr+H3ldTpWkVtYjp2MIYVWSafbcrywim8kKVGXpmNSa0S2nPNuGW4Go4XhQfXjYU3YC5GwcYS/Cl8HgWaOIM/hSB/5sV8rqTkSL1iMi9igdOBM38dLxZWDociTXwmRk9jGzaV+2BJD8Ry7G48gCq+iZ9iNW7HbTdtOt9+33VpgT34UKuj/eXd1fjsmfzOq0fDLTvfk41Efoz7MYzvYReS/kgIS9wH4WP4DlbhRewNHD07XiQvX4zVqfl4CjVszgtzQ5kiL3wA+/BOTOJzeKhf8b5PDV8xCjLsx3YcK2k5HLl349qk+PpHa/ORczH6y+RcnA/hEvgXcaQEfwY3l+Bp72K74JdNjX1e6EZABfdxCUDkF6sbYe9XDzbPV1I2rU/WNNsexG7At/ElNPui6HXgFjuh+oxIekLzw5HvpsFb59v+9sNjrSeaba5bm+zMUhtiNIHP4pEe2WIx8EUp6Lv7dxVkSXCw1XFjljr0qz92rpma85YYrbowWWzAr4toewgeKVcdrgQ+0FW71xsXpmI21gidL/yoWdm8PlyoVeIGIcwstEwUhbdtXJfMtDqyWmVxly/3NHydN+7aknWeOt3JXnoga+PhZiecXGj5M36yZiid+ed0zB7eWx8Y3DIfG2KMbr1v1raNaXjyVCeO1MIupK2Og+vHQpiYjo4+34733FEdCHzZBnTffSFQxEtV7M1eES7z/vufGeA/eHy+6cu/BwDdHOvDj6qZYwAAAABJRU5ErkJggg==" /><image id="dedup-img-3" width="20" height="20" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACZklEQVR42uzXTWudRRQH8N+ZmXtvk7Ra31bSbnQlCC7d+QlcuPc7iPo1BPU76FpQ10JAcCUogqAi2LpQQUHREmOemSO3N82NIU2FNMkmBw5zmGeY837+zxQXTBduQHv9vR1vv7rhjfd3ZLLXee7p4sbj4Z+JiNMpGMnmnC9vDZ983S1mlODDN7e8/NYd7a+/E9zZzehDWSrNfLheJiL4cyeN5MlrMZCt0uLQuQj9LMMdyGQaQB+0WlX0WrwU6bVW9XtnH3IQSq3Uokzdu9juI2vLFJDpmUyvnDb8EYwEyhE3lvul8NhWfIzt65sRzZp20TGhHr7wJDpq8F5n0fYvnChx2IDsV2alPbppF65uhHYkRRXJev+kooxgVtfyUvnNJ4rnbxTw1Y/DrV+HAFh1RI2IgDis6DjPWuXFZ9vd9TiaOp//MNmbYOX5Czfr3VZjJf/0+1inpISNeeg9z3cQBQbmbcXTWH9rJxXT0rNPv50emIKIFS9z/sXt/p8ULFN4ZUaOu+FXCv0+BiT6Ph/QvP2/IlyurXD7t+GXP8ZBEdbCSASbi+hSBHmcAQvUfb5vlT+IZnUd4qU8BpkreWOujSTCAqBFSIjwffBBxOkGUSZxTHQWTcxqpFCXuiBCtj506MP2SNvTGQ3jxHwW5i2NAdTQ21l3QKIUdnb57JvJ5oKnHingu5+HVsu5YIEIcW1jOQfUCO9gu1UXhgUfXWLBJRZcYsElFqyxoJ8DFgR9/3e8drIAS90tDx3LPJuuCGQ6ACGM/S3t6pUAW4vITH2vn/45dlxaFi1c34qDroF7ui+ULvx1/O8AaceBkCgHDTwAAAAASUVORK5CYII=" />
+<style type="text/css">
+    <![CDATA[
+    @import url('https://fonts.googleapis.com/css?family=Google+Sans:400,700');
+    ]]>
+</style>
+<marker id="path-arrow-src" refX="7" refY="3" markerWidth="7" markerHeight="6" orient='auto'>
+    <path d="M0,3 L7,0 V6 Z" style="fill:rgb(189, 193, 198);" />
+</marker>
+<marker id="path-arrow-dst" refX="0" refY="3" markerWidth="7" markerHeight="6" orient='auto'>
+    <path d="M0,0 V6 L7,3 Z" style="fill:rgb(189, 193, 198);" />
+</marker>
+<filter id="drop-shadow">
+    <feGaussianBlur in="SourceAlpha" result="baseShadow" stdDeviation="0.7 0.7" />
+    <feOffset in="baseShadow" result="offsetBlur" dx="0" dy="1" />
+    <feFlood in="baseShadow" result="shadowColor" flood-fill-color="" flood-fill-opacity="0" flood-color='rgba(0,0,0,0.3)' />
+    <feComposite in="offsetBlur" in2="shadowColor" result="dropShadow" operator="in" k1="0" k2="0" k3="0" k4="0" />
+    <feMerge>
+        <feMergeNode in="dropShadow"/>
+        <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+</filter>
+<pattern id="graph-renderer-bg" width="5" height="5" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="5" height="5" fill="#000000" /><circle cx="1" cy="1" r="0.5" fill="#3c4043" /></pattern>
+</defs>
+<rect x="-1140" y="-950" width="2280" height="1900" fill="url(#graph-renderer-bg)" />
+
+<g id="user-end" class="node">
+<rect x="40" y="260" width="180" height="96" rx="8" style="fill:rgb(10, 19, 20);stroke:rgb(60, 64, 67);stroke-width:1;filter:url(#drop-shadow);" />
+<circle cx="76" cy="294" r="12" style="fill:none;stroke:rgb(189, 193, 198);stroke-width:2.4;" />
+<path d="M58,330 Q76,308 94,330" style="fill:none;stroke:rgb(189, 193, 198);stroke-width:2.4;" />
+<text x="112" y="278" style="font-family:Google Sans;font-size:20px;font-weight:bold;fill:rgb(232, 234, 237);dominant-baseline:text-before-edge;" >User</text>
+<text x="112" y="306" style="font-family:Google Sans;font-size:15px;fill:rgb(189, 193, 198);dominant-baseline:text-before-edge;" >search request</text>
+</g>
+
+<g id="gemini-enterprise" class="node">
+<rect x="290" y="230" width="260" height="120" rx="8" style="fill:rgb(10, 19, 20);stroke:rgb(60, 64, 67);stroke-width:1;filter:url(#drop-shadow);" />
+<use xlink:href="#dedup-img-0" x="312" y="258" />
+<text x="346" y="252" style="font-family:Google Sans;font-size:21px;font-weight:bold;fill:rgb(232, 234, 237);dominant-baseline:text-before-edge;" >Gemini Enterprise</text>
+<text x="346" y="282" style="font-family:Google Sans;font-size:15px;fill:rgb(189, 193, 198);dominant-baseline:text-before-edge;" >entry point</text>
+</g>
+
+<g id="okta-sso" class="node">
+<rect x="290" y="390" width="260" height="96" rx="8" style="fill:rgb(10, 19, 20);stroke:rgb(60, 64, 67);stroke-width:1;filter:url(#drop-shadow);" />
+<use xlink:href="#dedup-img-1" x="312" y="416" />
+<text x="346" y="410" style="font-family:Google Sans;font-size:20px;font-weight:bold;fill:rgb(232, 234, 237);dominant-baseline:text-before-edge;" >Okta SSO</text>
+<text x="346" y="440" style="font-family:Google Sans;font-size:15px;fill:rgb(189, 193, 198);dominant-baseline:text-before-edge;" >identity provider</text>
+</g>
+
+<g id="agent-search" class="node">
+<rect x="600" y="230" width="220" height="120" rx="8" style="fill:rgb(10, 19, 20);stroke:rgb(60, 64, 67);stroke-width:1;filter:url(#drop-shadow);" />
+<use xlink:href="#dedup-img-2" x="622" y="258" />
+<text x="656" y="252" style="font-family:Google Sans;font-size:21px;font-weight:bold;fill:rgb(232, 234, 237);dominant-baseline:text-before-edge;" >Agent Search</text>
+<text x="656" y="282" style="font-family:Google Sans;font-size:15px;fill:rgb(189, 193, 198);dominant-baseline:text-before-edge;" >query orchestration</text>
+</g>
+
+<g id="cloud-run" class="node">
+<rect x="850" y="230" width="220" height="120" rx="8" style="fill:rgb(10, 19, 20);stroke:rgb(108, 118, 128);stroke-width:1;filter:url(#drop-shadow);" />
+<use xlink:href="#dedup-img-0" x="872" y="258" />
+<text x="906" y="252" style="font-family:Google Sans;font-size:21px;font-weight:bold;fill:rgb(232, 234, 237);dominant-baseline:text-before-edge;" >Cloud Run</text>
+<text x="906" y="282" style="font-family:Google Sans;font-size:15px;fill:rgb(189, 193, 198);dominant-baseline:text-before-edge;" >custom connector</text>
+</g>
+
+<g id="secret-manager" class="node">
+<rect x="850" y="390" width="220" height="84" rx="8" style="fill:rgb(10, 19, 20);stroke:rgb(108, 118, 128);stroke-width:1;filter:url(#drop-shadow);" />
+<text x="886" y="418" style="font-family:Google Sans;font-size:18px;font-weight:bold;fill:rgb(232, 234, 237);dominant-baseline:text-before-edge;" >Secret Manager</text>
+</g>
+
+<g id="system-servicenow" class="node">
+<rect x="1090" y="70" width="96" height="54" rx="8" style="fill:rgb(10, 19, 20);stroke:rgb(108, 118, 128);stroke-width:1;filter:url(#drop-shadow);" />
+<text x="1112" y="90" style="font-family:Google Sans;font-size:14px;font-weight:bold;fill:rgb(232, 234, 237);dominant-baseline:text-before-edge;" >ServiceNow</text>
+</g>
+<g id="system-workday" class="node">
+<rect x="1090" y="170" width="96" height="54" rx="8" style="fill:rgb(10, 19, 20);stroke:rgb(108, 118, 128);stroke-width:1;filter:url(#drop-shadow);" />
+<text x="1118" y="190" style="font-family:Google Sans;font-size:14px;font-weight:bold;fill:rgb(232, 234, 237);dominant-baseline:text-before-edge;" >Workday</text>
+</g>
+<g id="system-compliance" class="node">
+<rect x="1090" y="270" width="96" height="54" rx="8" style="fill:rgb(10, 19, 20);stroke:rgb(108, 118, 128);stroke-width:1;filter:url(#drop-shadow);" />
+<text x="1110" y="290" style="font-family:Google Sans;font-size:14px;font-weight:bold;fill:rgb(232, 234, 237);dominant-baseline:text-before-edge;" >Compliance</text>
+</g>
+<g id="system-sharepoint" class="node">
+<rect x="1090" y="370" width="96" height="54" rx="8" style="fill:rgb(10, 19, 20);stroke:rgb(108, 118, 128);stroke-width:1;filter:url(#drop-shadow);" />
+<text x="1110" y="390" style="font-family:Google Sans;font-size:14px;font-weight:bold;fill:rgb(232, 234, 237);dominant-baseline:text-before-edge;" >SharePoint</text>
+</g>
+<g id="system-confluence" class="node">
+<rect x="1090" y="470" width="96" height="54" rx="8" style="fill:rgb(10, 19, 20);stroke:rgb(108, 118, 128);stroke-width:1;filter:url(#drop-shadow);" />
+<text x="1110" y="490" style="font-family:Google Sans;font-size:14px;font-weight:bold;fill:rgb(232, 234, 237);dominant-baseline:text-before-edge;" >Confluence</text>
+</g>
+
+<g id="user-end,gemini-enterprise" class="edge">
+<path d="M220,305 Q252,292 290,290" style="fill:none;stroke:rgb(224, 230, 236);stroke-width:2;" />
+</g>
+<g id="gemini-enterprise,okta-sso" class="edge">
+<path d="M420,350 Q420,366 420,390" style="fill:none;stroke:rgb(224, 230, 236);stroke-width:2;" />
+</g>
+<g id="gemini-enterprise,agent-search" class="edge">
+<path d="M550,290 Q576,290 600,290" style="fill:none;stroke:rgb(224, 230, 236);stroke-width:2;" />
+</g>
+<g id="agent-search,cloud-run" class="edge">
+<path d="M820,290 Q834,290 850,290" style="fill:none;stroke:rgb(224, 230, 236);stroke-width:2;" />
+</g>
+<g id="cloud-run,secret-manager" class="edge">
+<path d="M960,350 Q960,366 960,390" style="fill:none;stroke:rgb(224, 230, 236);stroke-width:2;" />
+</g>
+<g id="cloud-run,system-servicenow" class="edge">
+<path d="M1070,290 Q1082,218 1090,97" style="fill:none;stroke:rgb(224, 230, 236);stroke-width:2;" />
+</g>
+<g id="cloud-run,system-workday" class="edge">
+<path d="M1070,290 Q1084,246 1090,197" style="fill:none;stroke:rgb(224, 230, 236);stroke-width:2;" />
+</g>
+<g id="cloud-run,system-compliance" class="edge">
+<path d="M1070,290 Q1084,290 1090,297" style="fill:none;stroke:rgb(224, 230, 236);stroke-width:2;" />
+</g>
+<g id="cloud-run,system-sharepoint" class="edge">
+<path d="M1070,290 Q1084,320 1090,397" style="fill:none;stroke:rgb(224, 230, 236);stroke-width:2;" />
+</g>
+<g id="cloud-run,system-confluence" class="edge">
+<path d="M1070,290 Q1084,350 1090,497" style="fill:none;stroke:rgb(224, 230, 236);stroke-width:2;" />
+</g>
+</svg>

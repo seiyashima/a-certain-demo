@@ -1,6 +1,6 @@
 # a-certain-demo
 
-Simple Flask demo app for connector/model integration experiments.
+Simple FastAPI demo app for connector/model integration experiments.
 
 ## Features
 

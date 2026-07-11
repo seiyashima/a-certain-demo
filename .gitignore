@@ -220,8 +220,8 @@ __marimo__/
 # macOS Finder metadata
 .DS_Store
 
-# Design artifacts are kept locally and not tracked by git
-design/
+# Private design artifacts are kept locally and not tracked by git
+design/private/
 
 # Notion private design source
 notion/content/design_outline.md
