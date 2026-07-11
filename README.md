@@ -29,11 +29,13 @@ Simple Flask demo app for connector/model integration experiments.
 ├── Procfile
 ├── templates/
 │   └── index.html
+├── design/
+│   └── (ignored; private diagrams and artifacts)
 ├── static/
 │   ├── app.js
 │   └── styles.css
 └── tests/
-		└── test_app.py
+	└── test_app.py
 ```
 
 ## Local Setup
@@ -43,7 +45,6 @@ Simple Flask demo app for connector/model integration experiments.
 3. Run the app.
 
 ```sh
-python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
@@ -100,6 +101,12 @@ docker run --rm -p 8080:8080 a-certain-demo
 
 ## Notion Integration
 
+The Notion integration is split into three layers:
+
+- `notion/client.py`: API access and page operations
+- `notion/content/design_outline.md`: editable design memo source
+- `notion/actions/publish_design.py`: runtime command that publishes the memo to Notion
+
 Create a local `.env` file from `.env.example` and set the Notion variables.
 
 ```sh
@@ -118,7 +125,7 @@ To append the design outline blocks to the target page:
 NOTION_ACTION=publish_design python3 -m notion
 ```
 
-The design memo itself lives in `notion/content/design_outline.md` and is converted to Notion blocks at runtime.
+The design memo is kept in `notion/content/design_outline.md` and converted to Notion blocks at runtime, so the prose stays easy to edit while the publisher remains small.
 
 Do not commit `.env` or any real token values.
 
