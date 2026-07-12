@@ -229,7 +229,12 @@ __marimo__/
 
 # Private design artifacts are kept locally and not tracked by git
 design/private/
-design/image/
+!design/image/
+design/image/*
+!design/image/overall-architecture.drawio
+!design/image/overall-architecture.svg
+!design/image/connector-architecture.drawio
+!design/image/connector-architecture.svg
 
 # Local scratch notes
 memo.md

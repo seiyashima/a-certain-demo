@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1500" height="900" viewBox="0 0 1500 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Connector architecture (FTS ingestion to Data Store)</title>
+  <desc id="desc">Cloud Run connector architecture for continuous Fetch, Transform, and Sync into Discovery Engine Data Store with ACL-attached documents.</desc>
+  <defs>
+    <style>
+      .bg { fill: #ffffff; }
+      .title { font: 700 34px Arial, sans-serif; fill: #202124; }
+      .subtitle { font: 16px Arial, sans-serif; fill: #5f6368; }
+      .box { rx: 18; ry: 18; stroke-width: 2; }
+      .edge { stroke: #5f6368; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .label { font: 700 22px Arial, sans-serif; fill: #202124; }
+      .text { font: 15px Arial, sans-serif; fill: #334155; }
+      .small { font: 13px Arial, sans-serif; fill: #5f6368; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5f6368" />
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1500" height="900" />
+  <text class="title" x="60" y="62">Connector Architecture (FTS Ingestion to Data Store)</text>
+  <text class="subtitle" x="60" y="94">Cloud Run performs Fetch, Transform, and Sync to keep ACL-attached documents continuously updated</text>
+
+  <rect class="box" x="60" y="150" width="360" height="180" fill="#ffffff" stroke="#dadce0" />
+  <text class="label" x="90" y="190">5 Source Systems</text>
+  <text class="text" x="90" y="222">ServiceNow / Workday / Compliance</text>
+  <text class="text" x="90" y="246">SharePoint / Confluence</text>
+  <text class="text" x="90" y="270">Connection types vary per source</text>
+
+  <rect class="box" x="460" y="140" width="320" height="200" fill="#e6f4ea" stroke="#34a853" />
+  <text class="label" x="486" y="180">Cloud Run Fetch Service</text>
+  <text class="text" x="486" y="212">Fetch methods:</text>
+  <text class="text" x="486" y="236">REST API / SOAP / Microsoft Graph</text>
+  <text class="text" x="486" y="260">Connector auth + retries + timeout control</text>
+  <text class="text" x="486" y="284">Collects raw source payloads</text>
+
+  <rect class="box" x="820" y="140" width="320" height="200" fill="#e8f0fe" stroke="#1a73e8" />
+  <text class="label" x="846" y="180">Cloud Run Transform Service</text>
+  <text class="text" x="846" y="212">Normalize to Discovery Engine schema</text>
+  <text class="text" x="846" y="236">Map identity attributes to ACL fields</text>
+  <text class="text" x="846" y="260">Attach metadata and stable document IDs</text>
+  <text class="text" x="846" y="284">Prepare upsert payloads</text>
+
+  <rect class="box" x="1180" y="140" width="260" height="200" fill="#fce8e6" stroke="#ea4335" />
+  <text class="label" x="1206" y="180">Cloud Run Sync Worker</text>
+  <text class="text" x="1206" y="212">Scheduled and batch execution</text>
+  <text class="text" x="1206" y="236">Incremental and full sync</text>
+  <text class="text" x="1206" y="260">Checkpoint and retry management</text>
+  <text class="text" x="1206" y="284">Keeps Data Store fresh</text>
+
+  <rect class="box" x="280" y="420" width="320" height="160" fill="#fef7e0" stroke="#fbbc04" />
+  <text class="label" x="306" y="460">Identity Sources</text>
+  <text class="text" x="306" y="492">Okta SSO / LDAP / Azure AD federated to Okta</text>
+  <text class="text" x="306" y="516">Groups and org attributes for ACL mapping</text>
+  <text class="text" x="306" y="540">No end-user query processing in this scope</text>
+
+  <rect class="box" x="660" y="420" width="360" height="160" fill="#f8f9fa" stroke="#9aa0a6" />
+  <text class="label" x="686" y="460">Secret Manager + Sync State</text>
+  <text class="text" x="686" y="492">Static secrets: connector credentials</text>
+  <text class="text" x="686" y="516">Sync checkpoint, cursor, and cache state</text>
+  <text class="text" x="686" y="540">Supports reliable continuous ingestion</text>
+
+  <rect class="box" x="1060" y="400" width="380" height="200" fill="#dbeafe" stroke="#4285f4" />
+  <text class="label" x="1086" y="440">Discovery Engine API + Data Store</text>
+  <text class="text" x="1086" y="472">Continuous upsert of ACL-attached documents</text>
+  <text class="text" x="1086" y="496">Document ACL fields stay synchronized</text>
+  <text class="text" x="1086" y="520">Index freshness and consistency maintained</text>
+  <text class="text" x="1086" y="544">Primary objective of FTS connector scope</text>
+
+  <path class="edge" d="M420 240 H460" />
+  <path class="edge" d="M780 240 H820" />
+  <path class="edge" d="M1140 240 H1180" />
+  <path class="edge" d="M1310 340 V400" />
+  <path class="edge" d="M600 500 H820" />
+  <path class="edge" d="M1020 500 H1060" />
+  <path class="edge" d="M980 340 V420" />
+
+  <text class="small" x="506" y="122">Fetch</text>
+  <text class="small" x="866" y="122">Transform</text>
+  <text class="small" x="1244" y="122">Sync</text>
+
+  <rect x="60" y="660" width="1380" height="180" rx="16" ry="16" fill="#ffffff" stroke="#e0e0e0" stroke-width="2" />
+  <text class="label" x="90" y="700">Connector Scope Summary</text>
+  <text class="text" x="90" y="734">1. Fetch from 5 systems using REST API, SOAP, and Microsoft Graph.</text>
+  <text class="text" x="90" y="762">2. Transform source payloads into Discovery Engine schema and attach ACL metadata from identity attributes.</text>
+  <text class="text" x="90" y="790">3. Sync continuously via Cloud Run Worker to keep Data Store updated with ACL-attached documents.</text>
+  <text class="text" x="90" y="818">This diagram intentionally focuses on ingestion, not user query and answer flow.</text>
+</svg>
