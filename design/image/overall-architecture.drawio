@@ -43,7 +43,7 @@
         <mxCell id="note1" value="Scope: User access -&gt; SSO -&gt; Gemini Enterprise search -&gt; Data Store retrieval with ACL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9aa0a6;" vertex="1" parent="1">
           <mxGeometry x="1370" y="170" width="380" height="90" as="geometry"/>
         </mxCell>
-        <mxCell id="note2" value="Data ingestion (Fetch/Transform/Sync) is documented separately in connector-architecture.drawio" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9aa0a6;" vertex="1" parent="1">
+        <mxCell id="note2" value="Data ingestion (ETL: Extract/Transform/Load) is documented separately in connector-architecture.drawio" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9aa0a6;" vertex="1" parent="1">
           <mxGeometry x="1370" y="300" width="380" height="90" as="geometry"/>
         </mxCell>
 

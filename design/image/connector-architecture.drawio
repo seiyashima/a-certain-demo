@@ -1,83 +1,109 @@
 <mxfile host="app.diagrams.net" modified="2026-07-12T00:00:00.000Z" agent="Copilot" version="24.7.0" type="device">
   <diagram id="connector-arch" name="Connector Architecture">
-    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1800" dy="980" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="1200" math="0" shadow="0">
       <root>
         <mxCell id="0"/>
         <mxCell id="1" parent="0"/>
 
         <mxCell id="lane-src" value="Source Systems (5)" style="swimlane;horizontal=0;rounded=1;fillColor=#ffffff;strokeColor=#dadce0;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="20" y="80" width="320" height="900" as="geometry"/>
+          <mxGeometry x="20" y="80" width="300" height="870" as="geometry"/>
         </mxCell>
-        <mxCell id="lane-cloudrun" value="Cloud Run Apps" style="swimlane;horizontal=0;rounded=1;fillColor=#e6f4ea;strokeColor=#34a853;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="360" y="80" width="760" height="900" as="geometry"/>
+        <mxCell id="lane-cloudrun" value="Cloud Run Apps" style="swimlane;horizontal=0;rounded=1;fillColor=#eef8f0;strokeColor=#34a853;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="80" width="860" height="870" as="geometry"/>
         </mxCell>
-        <mxCell id="lane-identity" value="Identity / Secrets" style="swimlane;horizontal=0;rounded=1;fillColor=#fef7e0;strokeColor=#fbbc04;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="1140" y="80" width="300" height="900" as="geometry"/>
+        <mxCell id="lane-identity" value="Identity Sources" style="swimlane;horizontal=0;rounded=1;fillColor=#fef7e0;strokeColor=#fbbc04;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="80" width="280" height="870" as="geometry"/>
         </mxCell>
-        <mxCell id="lane-target" value="Discovery Engine Target" style="swimlane;horizontal=0;rounded=1;fillColor=#dbeafe;strokeColor=#4285f4;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="1460" y="80" width="320" height="900" as="geometry"/>
+        <mxCell id="lane-target" value="Discovery Engine" style="swimlane;horizontal=0;rounded=1;fillColor=#e8f0fe;strokeColor=#4285f4;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="80" width="250" height="870" as="geometry"/>
         </mxCell>
 
         <mxCell id="sys1" value="ServiceNow" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dadce0;" vertex="1" parent="1">
-          <mxGeometry x="50" y="170" width="260" height="60" as="geometry"/>
+          <mxGeometry x="45" y="170" width="250" height="60" as="geometry"/>
         </mxCell>
         <mxCell id="sys2" value="Workday" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dadce0;" vertex="1" parent="1">
-          <mxGeometry x="50" y="250" width="260" height="60" as="geometry"/>
+          <mxGeometry x="45" y="255" width="250" height="60" as="geometry"/>
         </mxCell>
         <mxCell id="sys3" value="Compliance System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dadce0;" vertex="1" parent="1">
-          <mxGeometry x="50" y="330" width="260" height="60" as="geometry"/>
+          <mxGeometry x="45" y="340" width="250" height="60" as="geometry"/>
         </mxCell>
         <mxCell id="sys4" value="SharePoint" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dadce0;" vertex="1" parent="1">
-          <mxGeometry x="50" y="410" width="260" height="60" as="geometry"/>
+          <mxGeometry x="45" y="425" width="250" height="60" as="geometry"/>
         </mxCell>
         <mxCell id="sys5" value="Confluence" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dadce0;" vertex="1" parent="1">
-          <mxGeometry x="50" y="490" width="260" height="60" as="geometry"/>
+          <mxGeometry x="45" y="510" width="250" height="60" as="geometry"/>
         </mxCell>
 
-        <mxCell id="fetch" value="Cloud Run Fetch Service&#xa;REST API / SOAP / Microsoft Graph" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#34a853;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="400" y="220" width="300" height="90" as="geometry"/>
+        <mxCell id="fetch1" value="Extract Service: ServiceNow (REST API)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#34a853;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="390" y="205" width="350" height="64" as="geometry"/>
         </mxCell>
-        <mxCell id="transform" value="Cloud Run Transform Service&#xa;Normalize schema + Attach ACL fields" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a73e8;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="760" y="220" width="320" height="90" as="geometry"/>
+        <mxCell id="fetch2" value="Extract Service: Workday (REST API)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#34a853;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="390" y="285" width="350" height="64" as="geometry"/>
         </mxCell>
-        <mxCell id="sync" value="Cloud Run Sync Worker&#xa;Scheduled / Incremental / Full sync" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#ea4335;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="560" y="380" width="300" height="90" as="geometry"/>
+        <mxCell id="fetch3" value="Extract Service: Compliance (SOAP)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#34a853;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="390" y="365" width="350" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="fetch4" value="Extract Service: SharePoint (Microsoft Graph)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#34a853;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="390" y="445" width="350" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="fetch5" value="Extract Service: Confluence (REST API)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#34a853;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="390" y="525" width="350" height="64" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="transform" value="Transform Service&#xa;Normalize schema + Attach ACL fields" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a73e8;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="780" y="300" width="410" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="sync" value="Load Worker&#xa;Scheduled / Incremental / Full load" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#ea4335;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="780" y="455" width="410" height="120" as="geometry"/>
         </mxCell>
         <mxCell id="checkpoint" value="Sync State Cache&#xa;cursor / checkpoint / retry state" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9aa0a6;" vertex="1" parent="1">
-          <mxGeometry x="900" y="380" width="180" height="90" as="geometry"/>
+          <mxGeometry x="780" y="610" width="410" height="90" as="geometry"/>
         </mxCell>
 
-        <mxCell id="idp" value="Okta / LDAP / Azure AD federation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8dc;strokeColor=#fbbc04;" vertex="1" parent="1">
-          <mxGeometry x="1170" y="220" width="240" height="80" as="geometry"/>
+        <mxCell id="okta" value="Okta SSO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8dc;strokeColor=#fbbc04;" vertex="1" parent="1">
+          <mxGeometry x="1265" y="220" width="210" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="azuread" value="Azure AD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8dc;strokeColor=#fbbc04;" vertex="1" parent="1">
+          <mxGeometry x="1265" y="310" width="210" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="ldap" value="LDAP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8dc;strokeColor=#fbbc04;" vertex="1" parent="1">
+          <mxGeometry x="1265" y="400" width="210" height="70" as="geometry"/>
         </mxCell>
         <mxCell id="secret" value="Secret Manager&#xa;connector credentials" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#9aa0a6;" vertex="1" parent="1">
-          <mxGeometry x="1170" y="340" width="240" height="80" as="geometry"/>
+          <mxGeometry x="1265" y="520" width="210" height="90" as="geometry"/>
         </mxCell>
 
         <mxCell id="deapi" value="Discovery Engine API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4285f4;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="1500" y="230" width="240" height="80" as="geometry"/>
+          <mxGeometry x="1545" y="300" width="200" height="90" as="geometry"/>
         </mxCell>
-        <mxCell id="datastore" value="Data Store&#xa;ACL-attached documents" style="shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#ffffff;strokeColor=#4285f4;" vertex="1" parent="1">
-          <mxGeometry x="1520" y="370" width="200" height="110" as="geometry"/>
-        </mxCell>
-
-        <mxCell id="summary" value="Goal: continuously keep Data Store updated with ACL-attached data.&#xa;This connector architecture explains only FTS ingestion scope." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9aa0a6;" vertex="1" parent="1">
-          <mxGeometry x="400" y="560" width="1340" height="90" as="geometry"/>
+        <mxCell id="datastore" value="Data Store&#xa;ACL-attached docs" style="shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#ffffff;strokeColor=#4285f4;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="455" width="170" height="120" as="geometry"/>
         </mxCell>
 
-        <mxCell id="l1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="sys1" target="fetch"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="l2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="sys2" target="fetch"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="l3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="sys3" target="fetch"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="l4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="sys4" target="fetch"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="l5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="sys5" target="fetch"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="summary" value="Connector scope: Extract -&gt; Transform -&gt; Load for continuous Data Store updates with ACL metadata." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9aa0a6;" vertex="1" parent="1">
+          <mxGeometry x="30" y="910" width="1740" height="40" as="geometry"/>
+        </mxCell>
 
-        <mxCell id="l6" value="1 Fetch" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="fetch" target="transform"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="l7" value="2 Transform" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="transform" target="sync"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="l8" value="3 Sync" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="sync" target="deapi"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="l9" value="upsert" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="deapi" target="datastore"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="l10" value="ACL mapping attributes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="idp" target="transform"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="l11" value="credentials" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="secret" target="fetch"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="l12" value="checkpoint" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="sync" target="checkpoint"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="l1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="sys1" target="fetch1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="l2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="sys2" target="fetch2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="l3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="sys3" target="fetch3"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="l4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="sys4" target="fetch4"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="l5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="sys5" target="fetch5"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="l6" value="1 Extract" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="fetch1" target="transform"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="l7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="fetch2" target="transform"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="l8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="fetch3" target="transform"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="l9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="fetch4" target="transform"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="l10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="fetch5" target="transform"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="l11" value="2 Transform" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="transform" target="sync"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="l12" value="3 Load" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="sync" target="deapi"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="l13" value="upsert" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="deapi" target="datastore"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="l14" value="attributes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="okta" target="transform"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="l15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="azuread" target="transform"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="l16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="ldap" target="transform"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="l17" value="credentials" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="secret" target="fetch5"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="l18" value="checkpoint" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5f6368;" edge="1" parent="1" source="sync" target="checkpoint"><mxGeometry relative="1" as="geometry"/></mxCell>
       </root>
     </mxGraphModel>
   </diagram>

@@ -53,7 +53,7 @@
 
   <rect class="box" x="1120" y="380" width="280" height="140" fill="#f8f9fa" stroke="#9aa0a6" />
   <text class="label" x="1146" y="420">Scope Boundary</text>
-  <text class="text" x="1146" y="452">FTS ingestion path is</text>
+  <text class="text" x="1146" y="452">ETL path is</text>
   <text class="text" x="1146" y="476">described in connector-architecture.svg</text>
 
   <path class="edge" d="M300 205 H340" />
