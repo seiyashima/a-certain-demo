@@ -124,6 +124,8 @@ Gemini Enterprise + Agent Search + Cloud Run Jobs
 
 案 B を基本採用とする。
 
+Cloud Run 上で動かす API フレームワークとしては FastAPI を採用し、Flask は採用しない。
+
 理由は、標準コネクタだけではカバーしきれない独自 SaaS・オンプレミス・REST API 連携を扱いつつ、Cloud Run 上でカスタムコネクタとして実装でき、Agent Search の検索・Grounding・Citation の強みを維持しやすいためである。
 
 特に、以下の点で案 B が今回の要件に最も合致する。
@@ -132,6 +134,27 @@ Gemini Enterprise + Agent Search + Cloud Run Jobs
 - 検索品質、Grounding、Citation を自前 RAG より少ない実装負荷で確保しやすい
 - 同期処理や外部連携の責務を Cloud Run に寄せることで、拡張時の変更箇所を分離しやすい
 - マネージドサービス優先という方針を保ちながら、必要な部分だけをカスタム実装できる
+- FastAPI を選ぶことで、API 契約、入力検証、認証・認可の実装を 1 つの流れで統一しやすく、開発初期から運用移行までの手戻りを抑えやすい
+- OpenAPI / Swagger を自動生成できるため、接続仕様の共有、疎通確認、将来の運用引き継ぎがしやすい
+- 非同期 I/O を前提にしやすく、複数 SaaS への問い合わせを 1 リクエストの中で効率よく束ねやすい
+- Flask でも実装は可能だが、今回必要なスキーマ管理、型安全性、API ドキュメント、認証・認可の整理を個別に補う必要があり、初期実装コストと保守コストの両方が上がる
+
+技術実装の観点では、FastAPI 採用により以下の効果がある。
+
+- `query`, `providers`, ACL ポリシー、Okta claims のような構造化データを request / response model としてそのまま定義できる
+- 認可条件の追加時に、入力不足や型不整合を実行前に検知しやすい
+- `/search` や `/acl/check` の契約を API ドキュメントとして即座に共有できる
+- Gemini Enterprise / Agent Search との接続時に、必要なヘッダーや payload 形式を確認しやすい
+- 1 回の検索で複数プロバイダーへ同時に問い合わせ、タイムアウトや部分失敗を扱いやすい
+- Cloud Run の短いリクエスト時間内で複数外部 API を束ねる用途と相性がよい
+- API キー検証、Okta JWT 検証、ACL / ABAC 判定を dependency として分割し、個別にテストしやすい
+
+Flask を選ぶ場合は、少なくとも以下を追加で自前整備する必要がある。
+
+- request / response のスキーマ管理
+- バリデーションと型安全性の補完
+- OpenAPI 生成の追加構成
+- 認証・認可 dependency を整理するための設計ルール
 
 案 A は標準 SaaS に限定した場合は有効だが、今回の要件では拡張性が不足する。
 
@@ -145,6 +168,8 @@ Gemini Enterprise + Agent Search + Cloud Run Jobs
 - 検索・ACL・Grounding を Gemini Enterprise / Agent Search 側に寄せ、連携や同期の責務を Cloud Run に分離する
 - 将来的なデータソース増加に対して、コネクタ追加で対応しやすくする
 - バッチ同期が必要な処理は Cloud Run Jobs を補助的に使う余地を残す
+- API 実装は FastAPI / Pydantic を前提に揃える
+- Flask ベースの簡易アプリが残る場合でも、将来の本番系 API は FastAPI 側へ寄せる判断になる
 
 ## Notes
 
