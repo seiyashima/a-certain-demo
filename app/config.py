@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
-from typing import List, Optional
+from typing import Dict, List, Literal, Optional
 from urllib.parse import urlparse
 
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -77,6 +77,59 @@ class ACLPolicy(BaseModel):
         return value
 
 
+class ETLSystem(BaseModel):
+    name: str = Field(min_length=1)
+    identity_provider: Literal["okta", "okta_ldap_agent", "entra_id"]
+    extract_url: str
+    extract_method: Literal["GET", "POST"] = "GET"
+    records_field: str = "items"
+    token_url: Optional[str] = None
+    scope: Optional[str] = None
+    client_id_secret: Optional[str] = None
+    client_secret_secret: Optional[str] = None
+    username_secret: Optional[str] = None
+    password_secret: Optional[str] = None
+    extra_headers: Dict[str, str] = Field(default_factory=dict)
+
+    @field_validator("name")
+    @classmethod
+    def normalize_system_name(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if not normalized:
+            raise ValueError("name must not be empty")
+        return normalized
+
+    @field_validator("extract_url")
+    @classmethod
+    def validate_extract_url(cls, value: str) -> str:
+        parsed = urlparse(value)
+        if parsed.scheme != "https" or not parsed.netloc:
+            raise ValueError("extract_url must be a valid https URL")
+        return value
+
+    @field_validator("records_field")
+    @classmethod
+    def normalize_records_field(cls, value: str) -> str:
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("records_field must not be empty")
+        return normalized
+
+    @model_validator(mode="after")
+    def validate_identity_configuration(self) -> "ETLSystem":
+        if self.identity_provider in {"okta", "entra_id"}:
+            if not self.token_url:
+                raise ValueError("token_url is required for okta/entra_id")
+            if not self.client_id_secret or not self.client_secret_secret:
+                raise ValueError("client_id_secret and client_secret_secret are required for okta/entra_id")
+
+        if self.identity_provider == "okta_ldap_agent":
+            if not self.username_secret or not self.password_secret:
+                raise ValueError("username_secret and password_secret are required for okta_ldap_agent")
+
+        return self
+
+
 class Settings(BaseSettings):
     service_name: str = "federated-search-api"
     api_key: str = Field(min_length=16)
@@ -97,6 +150,11 @@ class Settings(BaseSettings):
     providers: List[SaaSProvider] = Field(default_factory=list)
     acl_enabled: bool = False
     acl_policies: List[ACLPolicy] = Field(default_factory=list)
+    etl_enabled: bool = False
+    etl_request_timeout_seconds: float = Field(default=20.0, gt=0, le=120)
+    etl_discovery_engine_load_url: Optional[str] = None
+    etl_bigquery_table: Optional[str] = None
+    etl_systems: List[ETLSystem] = Field(default_factory=list)
 
     model_config = SettingsConfigDict(
         env_prefix="SEARCH_APP_",
@@ -152,6 +210,9 @@ class Settings(BaseSettings):
 
         if self.acl_enabled and not self.acl_policies:
             raise ValueError("SEARCH_APP_ACL_POLICIES is required when SEARCH_APP_ACL_ENABLED=true")
+
+        if self.etl_enabled and not self.etl_systems:
+            raise ValueError("SEARCH_APP_ETL_SYSTEMS is required when SEARCH_APP_ETL_ENABLED=true")
 
         return self
 

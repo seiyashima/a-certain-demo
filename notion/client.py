@@ -9,6 +9,7 @@ from urllib import error, request
 
 NOTION_API_BASE = "https://api.notion.com/v1"
 NOTION_VERSION = "2022-06-28"
+NOTION_MAX_APPEND_CHILDREN = 100
 
 
 class NotionError(RuntimeError):
@@ -61,4 +62,9 @@ class NotionClient:
     def append_blocks(self, block_id: str, blocks: list[dict[str, Any]]) -> dict[str, Any]:
         if not blocks:
             raise NotionError("blocks must not be empty")
-        return self._request("PATCH", f"/blocks/{block_id}/children", {"children": blocks})
+
+        result: dict[str, Any] = {}
+        for start in range(0, len(blocks), NOTION_MAX_APPEND_CHILDREN):
+            chunk = blocks[start : start + NOTION_MAX_APPEND_CHILDREN]
+            result = self._request("PATCH", f"/blocks/{block_id}/children", {"children": chunk})
+        return result

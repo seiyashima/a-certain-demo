@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="1800" height="980" viewBox="0 0 1800 980" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">Connector architecture (ETL to Data Store)</title>
-  <desc id="desc">Cloud Run connector architecture with five separate extract services, split identity sources, and ETL flow into Discovery Engine Data Store.</desc>
+  <title id="title">Connector architecture (ETL to GCS Data Store)</title>
+  <desc id="desc">Cloud Run connector architecture with five separate extract services, split identity sources, and ETL flow that attaches ACL metadata and stores mock documents in GCS.</desc>
   <defs>
     <style>
       .bg { fill: #ffffff; }
@@ -20,7 +20,7 @@
   </defs>
 
   <rect class="bg" x="0" y="0" width="1800" height="980" />
-  <text class="title" x="50" y="60">Connector Architecture (ETL to Data Store)</text>
+  <text class="title" x="50" y="60">Connector Architecture (ETL to GCS Data Store)</text>
   <text class="subtitle" x="50" y="92">Cloud Run split services: five Extract workers + Transform + Load, with separate Okta / Azure AD / LDAP identity sources</text>
 
   <rect class="lane" x="30" y="120" width="300" height="770" fill="#ffffff" stroke="#dadce0" />
@@ -42,29 +42,29 @@
 
   <text class="small" x="390" y="185">Extract (5 split services)</text>
   <rect class="box" x="390" y="205" width="350" height="64" fill="#ffffff" stroke="#34a853" />
-  <text class="text" x="410" y="244">Fetch Service: ServiceNow (REST API)</text>
+  <text class="text" x="410" y="244">Extract Service: ServiceNow (REST API)</text>
   <rect class="box" x="390" y="285" width="350" height="64" fill="#ffffff" stroke="#34a853" />
-  <text class="text" x="410" y="324">Fetch Service: Workday (REST API)</text>
+  <text class="text" x="410" y="324">Extract Service: Workday (REST API)</text>
   <rect class="box" x="390" y="365" width="350" height="64" fill="#ffffff" stroke="#34a853" />
-  <text class="text" x="410" y="404">Fetch Service: Compliance (SOAP)</text>
+  <text class="text" x="410" y="404">Extract Service: Compliance (SOAP)</text>
   <rect class="box" x="390" y="445" width="350" height="64" fill="#ffffff" stroke="#34a853" />
-  <text class="text" x="410" y="484">Fetch Service: SharePoint (Microsoft Graph)</text>
+  <text class="text" x="410" y="484">Extract Service: SharePoint (Microsoft Graph)</text>
   <rect class="box" x="390" y="525" width="350" height="64" fill="#ffffff" stroke="#34a853" />
-  <text class="text" x="410" y="564">Fetch Service: Confluence (REST API)</text>
+  <text class="text" x="410" y="564">Extract Service: Confluence (REST API)</text>
 
-  <text class="small" x="780" y="185">Transform + Sync</text>
+  <text class="small" x="780" y="185">Transform + Load</text>
   <rect class="box" x="780" y="300" width="410" height="120" fill="#ffffff" stroke="#1a73e8" />
   <text class="label" x="805" y="336">Transform Service</text>
-  <text class="text" x="805" y="362">Normalize to Discovery Engine schema</text>
-  <text class="text" x="805" y="386">Attach ACL fields and metadata</text>
+  <text class="text" x="805" y="362">Normalize into common mock document schema</text>
+  <text class="text" x="805" y="386">Prepare ACL candidate fields and metadata</text>
 
   <rect class="box" x="780" y="455" width="410" height="120" fill="#ffffff" stroke="#ea4335" />
-  <text class="label" x="805" y="490">Load Worker</text>
-  <text class="text" x="805" y="516">Scheduled / incremental / full sync</text>
-  <text class="text" x="805" y="540">Retries, checkpoints, and upsert control</text>
+  <text class="label" x="805" y="490">Load Service</text>
+  <text class="text" x="805" y="516">Attach/merge ACL metadata into load payload</text>
+  <text class="text" x="805" y="540">Scheduled / incremental / full load to GCS</text>
 
   <rect class="box" x="780" y="610" width="410" height="90" fill="#ffffff" stroke="#9aa0a6" />
-  <text class="text" x="805" y="646">Sync State Cache: cursor, checkpoint, retry state</text>
+  <text class="text" x="805" y="646">Load State Cache: cursor, checkpoint, retry state</text>
 
   <rect class="lane" x="1240" y="120" width="260" height="770" fill="#fef7e0" stroke="#fbbc04" />
   <text class="label" x="1265" y="155">Identity Sources</text>
@@ -80,12 +80,20 @@
   <text class="small" x="1288" y="579">connector credentials</text>
 
   <rect class="lane" x="1520" y="120" width="250" height="770" fill="#e8f0fe" stroke="#4285f4" />
-  <text class="label" x="1545" y="155">Discovery Engine</text>
+  <text class="label" x="1545" y="155">GCS Data Store</text>
   <rect class="box" x="1545" y="300" width="200" height="90" fill="#ffffff" stroke="#4285f4" />
-  <text class="text" x="1568" y="338">Discovery Engine API</text>
-  <rect class="box" x="1560" y="455" width="170" height="120" fill="#ffffff" stroke="#4285f4" />
-  <text class="text" x="1583" y="500">Data Store</text>
-  <text class="small" x="1583" y="523">ACL-attached docs</text>
+  <text class="text" x="1568" y="338">Cloud Storage API</text>
+  <text class="small" x="1548" y="418">5 split buckets (per source)</text>
+  <rect class="box" x="1548" y="435" width="194" height="52" fill="#ffffff" stroke="#4285f4" />
+  <text class="small" x="1562" y="466">bucket-servicenow</text>
+  <rect class="box" x="1548" y="499" width="194" height="52" fill="#ffffff" stroke="#4285f4" />
+  <text class="small" x="1562" y="530">bucket-workday</text>
+  <rect class="box" x="1548" y="563" width="194" height="52" fill="#ffffff" stroke="#4285f4" />
+  <text class="small" x="1562" y="594">bucket-compliance</text>
+  <rect class="box" x="1548" y="627" width="194" height="52" fill="#ffffff" stroke="#4285f4" />
+  <text class="small" x="1562" y="658">bucket-sharepoint</text>
+  <rect class="box" x="1548" y="691" width="194" height="52" fill="#ffffff" stroke="#4285f4" />
+  <text class="small" x="1562" y="722">bucket-confluence</text>
 
   <path class="edge" d="M305 224 H390" />
   <path class="edge" d="M305 309 H390" />
@@ -101,7 +109,11 @@
 
   <path class="edge" d="M1190 360 V515 H780" />
   <path class="edge" d="M1190 515 H1545" />
-  <path class="edge" d="M1645 390 V455" />
+  <path class="edge" d="M1645 390 V435" />
+  <path class="edge" d="M1645 390 V499" />
+  <path class="edge" d="M1645 390 V563" />
+  <path class="edge" d="M1645 390 V627" />
+  <path class="edge" d="M1645 390 V691" />
   <path class="edge" d="M1190 515 V655 H780" />
 
   <path class="edge" d="M1475 255 H1190 V330" />
@@ -110,5 +122,5 @@
   <path class="edge" d="M1475 565 H740" />
 
   <rect x="30" y="910" width="1740" height="50" rx="12" ry="12" fill="#ffffff" stroke="#e0e0e0" stroke-width="2" />
-  <text class="small" x="55" y="942">Connector scope only: Extract -> Transform -> Load for continuous Data Store updates with ACL metadata.</text>
+  <text class="small" x="55" y="942">Connector scope only: Extract -> Transform -> Load to continuously store ACL-attached mock data in GCS.</text>
 </svg>

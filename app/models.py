@@ -55,3 +55,21 @@ class ACLCheckResponse(BaseModel):
     effective_max_results_per_provider: int
     denied_providers: List[str] = Field(default_factory=list)
     reasons: List[str] = Field(default_factory=list)
+
+
+class ETLRunRequest(BaseModel):
+    systems: Optional[List[str]] = None
+    dry_run: bool = False
+
+
+class ETLSystemResultResponse(BaseModel):
+    system: str
+    extracted_records: int
+    transformed_documents: int
+    loaded_documents: int
+
+
+class ETLRunResponse(BaseModel):
+    status: str = "ok"
+    dry_run: bool
+    systems: List[ETLSystemResultResponse] = Field(default_factory=list)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="1500" height="760" viewBox="0 0 1500 760" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
   <title id="title">Overall architecture (query and ACL-based retrieval scope)</title>
-  <desc id="desc">User accesses Gemini Enterprise via SSO and retrieves ACL-filtered results from Discovery Engine Data Store. Connector ingestion details are separated.</desc>
+  <desc id="desc">User accesses Gemini Enterprise via SSO and retrieves ACL-filtered results from Data Store (GCS for mock). Connector ETL details are separated.</desc>
   <defs>
     <style>
       .bg { fill: #ffffff; }
@@ -20,7 +20,7 @@
 
   <rect class="bg" x="0" y="0" width="1500" height="760" />
   <text class="title" x="60" y="62">Overall Architecture (User Access to ACL-Based Retrieval)</text>
-  <text class="subtitle" x="60" y="94">Scope: User access, SSO, Gemini Enterprise search, Data Store retrieval with ACL filtering</text>
+  <text class="subtitle" x="60" y="94">Scope: User access, SSO, Gemini Enterprise search, Data Store (GCS mock) retrieval with ACL filtering</text>
 
   <rect class="box" x="60" y="150" width="240" height="110" fill="#f8fbff" stroke="#5f9df7" />
   <text class="label" x="88" y="190">User / Browser</text>
@@ -45,8 +45,8 @@
   <text class="text" x="1066" y="250">Returns permitted results only</text>
 
   <rect class="box" x="720" y="360" width="360" height="180" fill="#e8f0fe" stroke="#1a73e8" />
-  <text class="label" x="746" y="400">Discovery Engine Data Store</text>
-  <text class="text" x="746" y="432">Indexed documents and metadata</text>
+  <text class="label" x="746" y="400">Data Store (GCS mock)</text>
+  <text class="text" x="746" y="432">Stored mock documents and metadata</text>
   <text class="text" x="746" y="456">ACL fields: groups, departments, regions</text>
   <text class="text" x="746" y="480">positions, managers, user-specific rules</text>
   <text class="text" x="746" y="504">ACL-based retrieval at query time</text>

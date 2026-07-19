@@ -10,7 +10,18 @@ from fastapi import Depends, FastAPI, Header, HTTPException, status
 from app import auth as auth_utils
 from app.config import ACLPolicy, Settings, get_settings
 from app.connectors import SaaSSearchConnector, build_connectors
-from app.models import ACLCheckRequest, ACLCheckResponse, AuthContext, SearchRequest, SearchResponse, SearchResult
+from app.etl import ETLPipeline, build_etl_pipeline
+from app.models import (
+    ACLCheckRequest,
+    ACLCheckResponse,
+    AuthContext,
+    ETLRunRequest,
+    ETLRunResponse,
+    ETLSystemResultResponse,
+    SearchRequest,
+    SearchResponse,
+    SearchResult,
+)
 
 logger = logging.getLogger(__name__)
 app = FastAPI(title="Federated SaaS Search API")
@@ -27,6 +38,10 @@ def get_api_key(
 
 def get_connectors(settings: Settings = Depends(get_settings)) -> list[SaaSSearchConnector]:
     return build_connectors(settings.providers, settings.request_timeout_seconds)
+
+
+def get_etl_pipeline(settings: Settings = Depends(get_settings)) -> ETLPipeline:
+    return build_etl_pipeline(settings)
 
 
 def get_client_id(
@@ -306,4 +321,33 @@ async def check_acl(
         effective_max_results_per_provider=acl_max_results,
         denied_providers=denied_providers,
         reasons=reasons,
+    )
+
+
+@app.post("/etl/run", response_model=ETLRunResponse)
+async def run_etl(
+    payload: ETLRunRequest,
+    _: str = Depends(get_api_key),
+    settings: Settings = Depends(get_settings),
+    pipeline: ETLPipeline = Depends(get_etl_pipeline),
+) -> ETLRunResponse:
+    if not settings.etl_enabled:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="ETL is disabled")
+
+    try:
+        results = await pipeline.run(systems=payload.systems, dry_run=payload.dry_run)
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(error)) from error
+
+    return ETLRunResponse(
+        dry_run=payload.dry_run,
+        systems=[
+            ETLSystemResultResponse(
+                system=item.system,
+                extracted_records=item.extracted_records,
+                transformed_documents=item.transformed_documents,
+                loaded_documents=item.loaded_documents,
+            )
+            for item in results
+        ],
     )
