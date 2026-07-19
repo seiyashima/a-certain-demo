@@ -233,6 +233,26 @@ uvicorn app.main:app --reload
 - `GET /mock/secrets/{secret_name}`: Secret Manager 相当の固定シークレットを返す
 - `GET /mock/ldap/bind/compliance-system`: LDAP bind 情報の固定値を返す
 
+## 🗂️ 今回の設計変更の反映一覧
+
+1. ETL を Extract / Transform / Load に分割
+実装反映: `app/etl/extract.py`, `app/etl/transform.py`, `app/etl/load.py`, `app/etl/pipeline.py`
+
+2. 5システム個別連携
+実装反映: `.env.example` の `SEARCH_APP_ETL_SYSTEMS__N__*`、`app/config.py` の `ETLSystem`
+
+3. 認証方式切替（Okta / Okta LDAP Agent / Entra ID）
+実装反映: `app/config.py` の `identity_provider`、`app/etl/extract.py` の認証分岐
+
+4. Transform で Document 化 + ACL 付与
+実装反映: `app/etl/transform.py` の `DiscoveryDocument` と `acl` 正規化
+
+5. Load を Discovery Engine API + BigQuery 宛先で統一
+実装反映: `app/etl/load.py`、`SEARCH_APP_ETL_DISCOVERY_ENGINE_LOAD_URL`、`SEARCH_APP_ETL_BIGQUERY_TABLE`
+
+6. デモ時は外部接続せずモック応答に切替
+実装反映: `SEARCH_APP_ETL_MOCK_MODE`、`app/etl/mock_data.py`、`/mock/*` API（`app/main.py`）
+
 ## シンプルゲートウェイ API
 
 - Health check endpoint: `/healthz`

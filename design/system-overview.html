@@ -203,6 +203,51 @@
       </section>
 
       <section class="card" style="margin-top: 1rem">
+        <h2>8. 今回の設計変更と反映先</h2>
+        <table class="swimlane">
+          <thead>
+            <tr>
+              <th>設計変更</th>
+              <th>反映内容</th>
+              <th>反映先</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>ETL を Extract / Transform / Load に分割</th>
+              <td>責務をモジュール分離し、実行パイプラインを導入</td>
+              <td>app/etl/extract.py, app/etl/transform.py, app/etl/load.py, app/etl/pipeline.py</td>
+            </tr>
+            <tr>
+              <th>5システム個別連携の前提を明確化</th>
+              <td>ServiceNow / Workday / Compliance / SharePoint / Confluence を個別設定化</td>
+              <td>.env.example, app/config.py</td>
+            </tr>
+            <tr>
+              <th>認証方式をシステム別に切替</th>
+              <td>Okta / Okta LDAP Agent / Entra ID を identity_provider で選択</td>
+              <td>app/config.py, app/etl/extract.py</td>
+            </tr>
+            <tr>
+              <th>Transform で Document + ACL 付与</th>
+              <td>取得データを文書化し、allowed_* ACL メタデータを付与</td>
+              <td>app/etl/transform.py</td>
+            </tr>
+            <tr>
+              <th>Load を Discovery Engine API 経由で実行</th>
+              <td>Discovery Engine Load URL と BigQuery 宛先を設定しロード</td>
+              <td>app/etl/load.py, app/config.py</td>
+            </tr>
+            <tr>
+              <th>デモ用途で外部実接続を停止</th>
+              <td>ETL mock mode を追加し、5システム取得 / Secret / BIND を固定レスポンス化</td>
+              <td>app/etl/mock_data.py, app/main.py, app/etl/extract.py, app/etl/load.py</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card" style="margin-top: 1rem">
         <h2>関連資料</h2>
         <p>
           連携や認証の判断は、<a href="./connector-architecture.html">連携アーキテクチャ設計</a> に整理している。
