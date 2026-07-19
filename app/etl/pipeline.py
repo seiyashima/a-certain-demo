@@ -19,7 +19,12 @@ class ETLSystemResult:
 class ETLPipeline:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
-        self.extract_service = ExtractService(timeout=settings.etl_request_timeout_seconds)
+        self.extract_service = ExtractService(
+            timeout=settings.etl_request_timeout_seconds,
+            use_secret_manager=settings.etl_secret_manager_enabled,
+            use_mock=settings.etl_mock_mode,
+            project_id=settings.etl_secret_manager_project_id,
+        )
         self.transform_service = TransformService()
         self.load_service = LoadService(settings=settings)
 

@@ -217,6 +217,22 @@ cp .env.example .env
 uvicorn app.main:app --reload
 ```
 
+## 🧪 ETL デモ用モックモード
+
+デモ用途では、5システム接続、Secret Manager 参照、LDAP bind 情報取得を実接続せずにモック応答で実行できる。
+
+- `SEARCH_APP_ETL_ENABLED=true`
+- `SEARCH_APP_ETL_MOCK_MODE=true`
+
+この設定では、`/etl/run` は外部SaaSや Discovery Engine API へ接続せず、固定データを使って Extract/Transform/Load を完了する。
+
+モック確認用エンドポイント:
+
+- `GET /mock/systems/{system_name}/records`: 5システムの固定レコードを返す
+- `POST /mock/idp/{identity_provider}/token?system={system}`: Okta / Entra ID / Okta LDAP Agent 用の固定トークンを返す
+- `GET /mock/secrets/{secret_name}`: Secret Manager 相当の固定シークレットを返す
+- `GET /mock/ldap/bind/compliance-system`: LDAP bind 情報の固定値を返す
+
 ## シンプルゲートウェイ API
 
 - Health check endpoint: `/healthz`

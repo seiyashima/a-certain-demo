@@ -20,6 +20,9 @@ class LoadService:
         if dry_run:
             return len(batch.documents)
 
+        if self.settings.etl_mock_mode:
+            return len(batch.documents)
+
         if not self.settings.etl_discovery_engine_load_url:
             raise LoadError("SEARCH_APP_ETL_DISCOVERY_ENGINE_LOAD_URL is required")
         if not self.settings.etl_bigquery_table:

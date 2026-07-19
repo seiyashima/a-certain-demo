@@ -11,6 +11,7 @@ from app import auth as auth_utils
 from app.config import ACLPolicy, Settings, get_settings
 from app.connectors import SaaSSearchConnector, build_connectors
 from app.etl import ETLPipeline, build_etl_pipeline
+from app.etl.mock_data import MOCK_ETL_RECORDS, build_mock_access_token, get_mock_secret
 from app.models import (
     ACLCheckRequest,
     ACLCheckResponse,
@@ -351,3 +352,51 @@ async def run_etl(
             for item in results
         ],
     )
+
+
+@app.get("/mock/systems/{system_name}/records")
+async def mock_system_records(system_name: str) -> dict[str, object]:
+    system = system_name.strip().lower()
+    if system not in MOCK_ETL_RECORDS:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="unknown mock system")
+
+    return {
+        "system": system,
+        "items": MOCK_ETL_RECORDS[system],
+    }
+
+
+@app.post("/mock/idp/{identity_provider}/token")
+async def mock_identity_token(identity_provider: str, system: str) -> dict[str, object]:
+    provider = identity_provider.strip().lower()
+    if provider not in {"okta", "entra_id", "okta_ldap_agent"}:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="unsupported identity provider")
+
+    return {
+        "token_type": "Bearer",
+        "access_token": build_mock_access_token(system.strip().lower(), provider),
+        "expires_in": 3600,
+    }
+
+
+@app.get("/mock/secrets/{secret_name}")
+async def mock_secret(secret_name: str) -> dict[str, str]:
+    try:
+        value = get_mock_secret(secret_name)
+    except KeyError as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="mock secret not found") from error
+
+    return {"name": secret_name, "value": value}
+
+
+@app.get("/mock/ldap/bind/{system_name}")
+async def mock_ldap_bind(system_name: str) -> dict[str, str]:
+    system = system_name.strip().lower()
+    if system != "compliance-system":
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="mock bind info not found")
+
+    return {
+        "system": system,
+        "username": get_mock_secret("SEARCH_APP_ETL_SECRET_COMPLIANCE_LDAP_USERNAME"),
+        "password": get_mock_secret("SEARCH_APP_ETL_SECRET_COMPLIANCE_LDAP_PASSWORD"),
+    }

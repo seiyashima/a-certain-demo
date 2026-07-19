@@ -16,6 +16,7 @@ Gemini Enterprise Agent Platform から呼ばれる Cloud Run アプリを設計
 - 同期したデータを検索用に正規化する
 - 再インデックスを実行できる
 - 差分同期と全量同期を切り替えられる
+- デモ時は 5システム接続をモック応答へ切り替え、同一API契約で検証できる
 
 ## 3. 権限・認可機能
 
@@ -54,6 +55,7 @@ Gemini Enterprise Agent Platform から呼ばれる Cloud Run アプリを設計
 - WIF を使って外部サービスへ接続する
 - 秘密情報は Secret Manager などの外部管理に寄せる
 - 監査に必要な情報だけを最小限残す
+- デモ時は Secret Manager 参照と LDAP bind 情報取得をモック応答に切り替えられる
 
 ## 8. 監視・品質確認
 

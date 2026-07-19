@@ -151,7 +151,10 @@ class Settings(BaseSettings):
     acl_enabled: bool = False
     acl_policies: List[ACLPolicy] = Field(default_factory=list)
     etl_enabled: bool = False
+    etl_mock_mode: bool = False
     etl_request_timeout_seconds: float = Field(default=20.0, gt=0, le=120)
+    etl_secret_manager_enabled: bool = False
+    etl_secret_manager_project_id: Optional[str] = None
     etl_discovery_engine_load_url: Optional[str] = None
     etl_bigquery_table: Optional[str] = None
     etl_systems: List[ETLSystem] = Field(default_factory=list)
