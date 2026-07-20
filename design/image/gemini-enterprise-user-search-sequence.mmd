@@ -1,0 +1,17 @@
+sequenceDiagram
+    autonumber
+    participant Browser as ブラウザ
+    participant Gemini as Gemini Enterprise
+    participant STS as Google STS(sts.googleapis.com)
+    participant AgentSearch as Gemini Enterprise Agent Search
+    participant DataStore as Data Store / ACL Filter
+
+    Browser->>Gemini: 検索クエリ送信
+    Gemini->>Gemini: session の IdToken を検証
+    Gemini->>STS: IdToken を workforce identity の認証情報に変換要求
+    STS-->>Gemini: 結果取得
+    Gemini->>AgentSearch: Workforce Identity の認証情報で検索要求
+    AgentSearch->>DataStore: ACL を適用して対象ドキュメントを検索
+    DataStore-->>AgentSearch: ACL フィルタ済み結果
+    AgentSearch-->>Gemini: 検索結果
+    Gemini-->>Browser: 検索結果ページ返却

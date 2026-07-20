@@ -236,6 +236,10 @@ design/image/*
 !design/image/overall-architecture.svg
 !design/image/connector-architecture.drawio
 !design/image/connector-architecture.svg
+!design/image/gemini-enterprise-okta-sequence.mmd
+!design/image/gemini-enterprise-okta-sequence.html
+!design/image/gemini-enterprise-user-search-sequence.mmd
+!design/image/gemini-enterprise-user-search-sequence.html
 
 # Local scratch notes
 memo.md

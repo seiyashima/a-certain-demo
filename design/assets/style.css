@@ -23,7 +23,7 @@ body {
 }
 
 .page {
-  width: min(1080px, 100% - 2rem);
+  width: min(1360px, 100% - 2rem);
   margin: 2rem auto 3rem;
 }
 
