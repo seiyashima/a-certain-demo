@@ -64,7 +64,11 @@ sequenceDiagram
     participant Gemini as Gemini Enterprise
     participant STS as Google STS(sts.googleapis.com)
     participant AgentSearch as Gemini Enterprise Agent Search
+  participant PolicyGuard as Cloud Run Policy Guard
     participant DataStore as Data Store / ACL Filter
+
+  Note over AgentSearch,DataStore: 検索時は格納済みデータと ACL メタデータで可否判定し、元システムへはリアルタイム問い合わせしない
+  Note over AgentSearch,PolicyGuard: コンプライアンス/GDPR 区分のみ Cloud Run 側で二重チェック
 
     Browser->>Gemini: 検索クエリ送信
     Gemini->>Gemini: session の IdToken を検証
@@ -74,7 +78,12 @@ sequenceDiagram
     AgentSearch->>DataStore: ACL を適用して対象ドキュメントを検索
     DataStore-->>AgentSearch: ACL フィルタ済み結果
     AgentSearch-->>Gemini: 検索結果
-    Gemini-->>Browser: 検索結果ページ返却
+    alt 高機密区分（コンプライアンス/GDPR）を含む
+      Gemini->>PolicyGuard: 検索結果の二重チェック要求
+      PolicyGuard-->>Gemini: 二重チェック済み結果
+    end
+    Gemini->>Gemini: 検索結果をもとに回答生成
+    Gemini-->>Browser: 回答と検索結果ページ返却
 
           </div>
         </div>
@@ -89,7 +98,11 @@ sequenceDiagram
     participant Gemini as Gemini Enterprise
     participant STS as Google STS(sts.googleapis.com)
     participant AgentSearch as Gemini Enterprise Agent Search
+      participant PolicyGuard as Cloud Run Policy Guard
     participant DataStore as Data Store / ACL Filter
+
+      Note over AgentSearch,DataStore: 検索時は格納済みデータと ACL メタデータで可否判定し、元システムへはリアルタイム問い合わせしない
+      Note over AgentSearch,PolicyGuard: コンプライアンス/GDPR 区分のみ Cloud Run 側で二重チェック
 
     Browser-&gt;&gt;Gemini: 検索クエリ送信
     Gemini-&gt;&gt;Gemini: session の IdToken を検証
@@ -99,7 +112,12 @@ sequenceDiagram
     AgentSearch-&gt;&gt;DataStore: ACL を適用して対象ドキュメントを検索
     DataStore--&gt;&gt;AgentSearch: ACL フィルタ済み結果
     AgentSearch--&gt;&gt;Gemini: 検索結果
-    Gemini--&gt;&gt;Browser: 検索結果ページ返却
+    alt 高機密区分（コンプライアンス/GDPR）を含む
+      Gemini-&gt;&gt;PolicyGuard: 検索結果の二重チェック要求
+      PolicyGuard--&gt;&gt;Gemini: 二重チェック済み結果
+    end
+    Gemini-&gt;&gt;Gemini: 検索結果をもとに回答生成
+    Gemini--&gt;&gt;Browser: 回答と検索結果ページ返却
 
           </div>
       </section>

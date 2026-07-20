@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agent Search 認可判定 詳細設計 | a-certain-demo</title>
+    <link rel="stylesheet" href="./assets/style.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="card">
+        <p class="badge">Detailed Design</p>
+        <h1>Agent Search 認可判定の詳細設計</h1>
+        <p class="muted">
+          検索時に、どの仕組みを使ってどこで認可判定するかを整理する。一次判定は Agent Search、
+          コンプライアンス/GDPR 区分のみ Cloud Run で二次判定する。
+        </p>
+      </section>
+
+      <section class="card" style="margin-top: 1rem">
+        <h2>1. 判定アーキテクチャ</h2>
+        <table class="swimlane">
+          <thead>
+            <tr>
+              <th>層</th>
+              <th>役割</th>
+              <th>使う情報</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Agent Search（一次判定）</th>
+              <td>検索対象を抽出し、ACL メタデータで閲覧可否を絞り込む</td>
+              <td>ユーザの SSO コンテキスト、ドキュメントの ACL メタデータ</td>
+            </tr>
+            <tr>
+              <th>Cloud Run Policy Guard（二次判定）</th>
+              <td>高機密区分のみ追加ポリシーを適用して過剰公開を防止する</td>
+              <td>一次判定後の候補、機密区分フラグ、業務ポリシー</td>
+            </tr>
+            <tr>
+              <th>Gemini Enterprise（回答生成）</th>
+              <td>最終的に許可された結果だけを根拠に回答を生成する</td>
+              <td>最終判定済み検索結果、引用情報</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card" style="margin-top: 1rem">
+        <h2>1-1. 何のために突合するか（目的の明確化）</h2>
+        <p>
+          JWT クレームと ACL メタデータを突合する目的は、
+          「認証済みユーザに対して、閲覧許可された文書だけを返す」ことを検索時に機械的に実現するためである。
+          取得時（ETL）に高権限で収集したデータを、そのまま無差別に返さないための最終制御点がこの突合である。
+        </p>
+        <table class="swimlane">
+          <thead>
+            <tr>
+              <th>目的</th>
+              <th>防ぐリスク</th>
+              <th>期待効果</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>認可一貫性の担保</th>
+              <td>「ログイン済み=全件閲覧可」という誤判定</td>
+              <td>許可された対象だけを返却し、過剰開示を防止する</td>
+            </tr>
+            <tr>
+              <th>最小権限の実装</th>
+              <td>権限過大な横断検索</td>
+              <td>ユーザ属性と ACL の一致条件で表示範囲を最小化する</td>
+            </tr>
+            <tr>
+              <th>監査可能性の確保</th>
+              <td>なぜ見えた/見えないか説明できない状態</td>
+              <td>突合キーと判定結果をログ化し、事後検証を可能にする</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card" style="margin-top: 1rem">
+        <h2>2. Agent Search で使う判定キー</h2>
+        <p>
+          ETL で格納した ACL メタデータと、ユーザの属性を突合する。代表キーは次のとおり。
+        </p>
+        <table class="kv">
+          <tbody>
+            <tr>
+              <th>ユーザ属性（例）</th>
+              <td>sub, groups, department, region, position, manager_id</td>
+            </tr>
+            <tr>
+              <th>ACL メタデータ（例）</th>
+              <td>allowed_groups, allowed_departments, allowed_regions, allowed_positions, allowed_manager_ids, allowed_user_subs</td>
+            </tr>
+            <tr>
+              <th>追加分類</th>
+              <td>classification（例: standard, compliance, gdpr）</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card" style="margin-top: 1rem">
+        <h2>3. 判定プロセス</h2>
+        <ol class="timeline">
+          <li>ユーザは Okta SSO 後のコンテキストで検索要求を送る</li>
+          <li>Agent Search がデータストアから候補を取得する</li>
+          <li>Agent Search が ACL メタデータで一次判定する</li>
+          <li>候補に compliance/gdpr 区分が含まれる場合のみ Cloud Run が二次判定する</li>
+          <li>最終的に許可された結果のみ Gemini Enterprise が回答生成に使う</li>
+        </ol>
+      </section>
+
+      <section class="card" style="margin-top: 1rem">
+        <h2>4. 突合ルール（具体）</h2>
+        <p>
+          一次判定は次の順で評価する。複数条件は AND で扱い、1 つでも不一致なら deny とする。
+        </p>
+        <ol class="timeline">
+          <li>トークン妥当性確認（iss, aud, exp など）</li>
+          <li>主体特定（sub を正規化して内部 principal_id に変換）</li>
+          <li>属性突合（groups / department / region / position / manager_id）</li>
+          <li>個別許可突合（allowed_user_subs に sub が含まれるか）</li>
+          <li>区分判定（classification が compliance/gdpr の場合のみ二次判定へ）</li>
+        </ol>
+        <table class="kv">
+          <tbody>
+            <tr>
+              <th>主キー</th>
+              <td>sub（必要に応じて issuer と組み合わせて主体を一意化）</td>
+            </tr>
+            <tr>
+              <th>補助キー</th>
+              <td>groups, department, region, position, manager_id</td>
+            </tr>
+            <tr>
+              <th>不採用キー</th>
+              <td>email（運用上変更されうるため、主体の主キーにしない）</td>
+            </tr>
+            <tr>
+              <th>評価ポリシー</th>
+              <td>deny by default / fail closed</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card" style="margin-top: 1rem">
+        <h2>5. フェイルセーフ方針</h2>
+        <ul>
+          <li>ACL メタデータ不足時は deny（非表示）をデフォルトにする</li>
+          <li>classification 不明時は高機密扱いとして二次判定へ回す</li>
+          <li>二次判定でエラー時は結果を返さない（fail closed）</li>
+        </ul>
+      </section>
+
+      <section class="card" style="margin-top: 1rem">
+        <h2>6. 設計根拠（エビデンス）</h2>
+        <ul>
+          <li>
+            JWT はクレームを安全に運搬する標準形式であり、iss/sub/aud/exp などの検証を前提に利用する:
+            <a href="https://datatracker.ietf.org/doc/html/rfc7519">RFC 7519 (JSON Web Token)</a>
+          </li>
+          <li>
+            OIDC では ID Token による主体識別を行い、sub は主体識別子として扱う。識別の安定性は iss+sub の組み合わせが基準:
+            <a href="https://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect Core 1.0</a>
+          </li>
+          <li>
+            Entra / Microsoft Graph の権限モデルは delegated と app-only を分離し、最小権限付与を推奨:
+            <a href="https://learn.microsoft.com/en-us/graph/permissions-overview">Overview of Microsoft Graph permissions</a>
+            /
+            <a href="https://learn.microsoft.com/en-us/graph/permissions-reference">Microsoft Graph permissions reference</a>
+          </li>
+          <li>
+            Agent Search ではメタデータフィルタ（filter）により検索結果を条件付きで絞り込める:
+            <a href="https://docs.cloud.google.com/generative-ai-app-builder/docs/filter-search-metadata">Filter search by metadata</a>
+          </li>
+          <li>
+            WIF はサービスアカウント鍵の代わりに連携 ID と短命トークンを使う方式であり、鍵管理リスクを下げる:
+            <a href="https://docs.cloud.google.com/iam/docs/workload-identity-federation">Workload Identity Federation</a>
+          </li>
+        </ul>
+      </section>
+
+      <section class="card footer">
+        <a href="./index.html">設計ドキュメント一覧へ戻る</a>
+      </section>
+    </main>
+  </body>
+</html>

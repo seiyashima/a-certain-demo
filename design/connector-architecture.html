@@ -66,6 +66,89 @@
           <li>ドキュメント更新時は再インデックスまたは削除を行う</li>
           <li>Cloud Run サービスは責務別に分割し、独立して運用する</li>
         </ul>
+        <div class="note">
+          クローリング時は Cloud Run がシステム連携用の高権限でデータと ACL を取得し、検索用データストアへ整形して格納する。
+          ユーザ検索時は、この格納済みデータと ACL メタデータを基準に参照可否を判定する。
+          標準判定は Agent Search 側で行い、コンプライアンス/GDPR などの高機密区分のみ Cloud Run 側で二重チェックする。
+        </div>
+      </section>
+
+      <section class="card" style="margin-top: 1rem">
+        <h2>3-1. 5システムの認証方式一覧</h2>
+        <table class="swimlane">
+          <thead>
+            <tr>
+              <th>システム</th>
+              <th>identity_provider</th>
+              <th>認証方式</th>
+              <th>利用プロセス</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>ServiceNow</th>
+              <td>okta</td>
+              <td>OAuth 2.0 Client Credentials（Okta）</td>
+              <td>Cloud Run が Okta token endpoint で access token を取得し、Bearer token で ServiceNow API を呼び出す</td>
+            </tr>
+            <tr>
+              <th>Workday</th>
+              <td>entra_id</td>
+              <td>OAuth 2.0 Client Credentials（Entra ID）</td>
+              <td>Cloud Run が WIF（Federated Credential）前提で Entra ID token endpoint から access token を取得し、Bearer token で Workday API を呼び出す</td>
+            </tr>
+            <tr>
+              <th>Compliance System</th>
+              <td>okta_ldap_agent</td>
+              <td>Okta LDAP Agent 経由の資格情報連携</td>
+              <td>Cloud Run が Secret Manager から LDAP 用 username/password を取得し、ヘッダー経由で Compliance API へ連携する</td>
+            </tr>
+            <tr>
+              <th>SharePoint</th>
+              <td>entra_id</td>
+              <td>OAuth 2.0 Client Credentials（Entra ID / Microsoft Graph）</td>
+              <td>Cloud Run が WIF（Federated Credential）前提で Entra ID token endpoint から Graph 用 access token を取得し、Microsoft Graph API 経由で SharePoint データを取得する</td>
+            </tr>
+            <tr>
+              <th>Confluence</th>
+              <td>okta</td>
+              <td>OAuth 2.0 Client Credentials（Okta）</td>
+              <td>Cloud Run が Okta token endpoint で access token を取得し、Bearer token で Confluence REST API を呼び出す</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card" style="margin-top: 1rem">
+        <h2>3-2. 取得時と検索時の権限評価の分離</h2>
+        <table class="swimlane">
+          <thead>
+            <tr>
+              <th>フェーズ</th>
+              <th>実行主体</th>
+              <th>何をするか</th>
+              <th>判定基準</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>取得（ETL）</th>
+              <td>Cloud Run（Connector / ETL）</td>
+              <td>5システムへ接続し、データ本体と ACL 情報を取得・整形・格納する</td>
+              <td>システム連携用のサービス認証（Okta / Entra ID / Okta LDAP Agent）</td>
+            </tr>
+            <tr>
+              <th>検索（Query）</th>
+              <td>Gemini Enterprise + Agent Search</td>
+              <td>格納済みデータを検索し、ACL メタデータで閲覧可否を絞り込んで返却する。コンプライアンス/GDPR 区分のみ Cloud Run 側で二重チェックを追加する</td>
+              <td>一次判定: ユーザの SSO コンテキストとデータストア内 ACL。二次判定: Cloud Run のポリシーチェック（対象区分のみ）</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="muted" style="margin-top: 0.75rem">
+          どの目的で JWT 属性と ACL を突合するか、どのキーで判定するか、エビデンスを含む詳細は
+          <a href="./agent-search-authorization-detail.html">Agent Search 認可判定の詳細設計</a> を参照。
+        </p>
       </section>
 
       <section class="grid cols-2" style="margin-top: 1rem">

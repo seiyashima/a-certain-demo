@@ -113,10 +113,21 @@
         <h3>4-1. 共通検索フロー</h3>
         <ol class="timeline">
           <li>クライアントが共通の投げ口へ検索要求を送る</li>
-          <li>共通層が ACL を確認し、通過した検索条件を正規化する</li>
+          <li>共通層がユーザ属性と格納済み ACL メタデータを照合し、通過した検索条件を正規化する</li>
+          <li>コンプライアンス/GDPR 区分を含む結果のみ、Cloud Run 側で二重チェックする</li>
           <li>対象システムを決めてアダプタにルーティングする</li>
           <li>結果を共通スキーマへ整形して返却する</li>
         </ol>
+
+        <div class="note">
+          検索時の可否判定は、ETL で取り込んでデータストアに保存したデータと ACL メタデータを基準に行う。
+          元システムへの都度問い合わせではなく、格納済み情報を基準に表示可否が決まる。
+          標準は検索層で一次判定し、高機密区分のみ Cloud Run 側で二次判定する。
+        </div>
+        <p class="muted">
+          突合の目的、判定キー、失敗時の fail closed 方針、標準仕様への根拠は
+          <a href="./agent-search-authorization-detail.html">Agent Search 認可判定の詳細設計</a> に集約する。
+        </p>
 
         <h3>4-2. 失敗時の扱い</h3>
         <ol class="timeline">
@@ -154,6 +165,55 @@
           <li>health / runtime / search / connectors の疎通確認、成功・失敗観測、処理時間記録を運用指標にする</li>
           <li>デモ用途では ETL mock mode を有効にし、5システム取得と Secret/BIND 参照を固定レスポンスで再現する</li>
         </ul>
+
+        <h3>6-1. WIF と Secret Manager の棲み分け</h3>
+        <p>
+          この設計での役割分担は、<strong>WIF は外部サービスへ短命トークンで接続する仕組み</strong>、
+          <strong>Secret Manager はどうしても残る固定シークレットを保管する場所</strong>として分ける。
+        </p>
+        <table class="swimlane">
+          <thead>
+            <tr>
+              <th>項目</th>
+              <th>WIF</th>
+              <th>Secret Manager</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>主な役割</th>
+              <td>Cloud Run の実行主体を、外部IdPや外部SaaSが受け入れる短命認証情報へ変換する</td>
+              <td>Client Secret、API Token、例外的な LDAP bind password などの固定シークレットを保管する</td>
+            </tr>
+            <tr>
+              <th>扱うもの</th>
+              <td>トークン交換、フェデレーション、短時間だけ有効な access token</td>
+              <td>長めに保持される資格情報、接続先が WIF 非対応な場合の代替認証情報</td>
+            </tr>
+            <tr>
+              <th>保持方針</th>
+              <td>Cloud Run 側に固定秘密を持たせないことを優先する</td>
+              <td>アプリコードや平文環境変数に置かず、参照時だけ取り出す</td>
+            </tr>
+            <tr>
+              <th>向いているケース</th>
+              <td>Google Cloud から外部クラウドやSaaSへ、実行主体ベースで安全に接続したい場合</td>
+              <td>外部APIが client secret や bearer token を要求し、短命トークン化できない場合</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>6-2. 利用プロセス</h3>
+        <ol class="timeline">
+          <li>基本は WIF（Federated Credential）を前提にし、Cloud Run のサービスアカウントから短命トークンを取得する</li>
+          <li>接続先が固定 secret を要求する場合のみ、Secret Manager から必要な secret を実行時に取得する</li>
+          <li>取得した認証情報で API を呼び出し、トークンや secret 自体はログへ出さない</li>
+          <li>WIF で代替できる接続先が増えたら、Secret Manager に置いていた固定 secret を順次削減する</li>
+        </ol>
+
+        <div class="note">
+          原則は「認証は WIF、保管は Secret Manager」。つまり、認証方式を WIF へ寄せ、完全に消せない固定秘密だけを Secret Manager に残す。
+        </div>
       </section>
 
       <section class="card" style="margin-top: 1rem">
@@ -227,6 +287,14 @@
               <th>認証方式をシステム別に切替</th>
               <td>Okta / Okta LDAP Agent / Entra ID を identity_provider で選択</td>
               <td>app/config.py, app/etl/extract.py</td>
+            </tr>
+            <tr>
+              <th>5システムの認証方式を明示</th>
+              <td>
+                ServiceNow=Okta、Workday=Entra ID、Compliance System=Okta LDAP Agent、
+                SharePoint=Entra ID、Confluence=Okta
+              </td>
+              <td>design/connector-architecture.html（3-1. 5システムの認証方式一覧）</td>
             </tr>
             <tr>
               <th>Transform で Document + ACL 付与</th>
