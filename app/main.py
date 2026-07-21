@@ -6,6 +6,7 @@ import logging
 from typing import Annotated, Optional
 
 from fastapi import Depends, FastAPI, Header, HTTPException, status
+from fastapi.responses import HTMLResponse
 
 from app import auth as auth_utils
 from app.config import ACLPolicy, Settings, get_settings
@@ -218,6 +219,43 @@ def _result_matches_auth_context(result: SearchResult, auth_context: AuthContext
 @app.get("/healthz")
 async def healthcheck() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/", response_class=HTMLResponse)
+async def index() -> HTMLResponse:
+        return HTMLResponse(
+                """
+                <!doctype html>
+                <html lang="ja">
+                    <head>
+                        <meta charset="UTF-8" />
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                        <title>a-certain-demo</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 0; padding: 3rem; background: #0f172a; color: #e2e8f0; }
+                            main { max-width: 720px; margin: 0 auto; }
+                            h1 { margin: 0 0 1rem; font-size: 2rem; }
+                            p { line-height: 1.7; color: #cbd5e1; }
+                            .card { margin-top: 1.5rem; padding: 1.25rem; border-radius: 16px; background: #111827; border: 1px solid #334155; }
+                            a { color: #93c5fd; }
+                            code { background: #1e293b; padding: 0.15rem 0.35rem; border-radius: 6px; }
+                        </style>
+                    </head>
+                    <body>
+                        <main>
+                            <h1>a-certain-demo</h1>
+                            <p>Cloud Run の API ゲートウェイです。検索や ETL の確認は API から行えます。</p>
+                            <div class="card">
+                                <p><a href="/docs">API ドキュメント</a></p>
+                                <p><a href="/healthz">Health check</a></p>
+                                <p><a href="/api/runtime">Runtime metadata</a></p>
+                            </div>
+                            <p>起動確認は <code>/healthz</code> を参照してください。</p>
+                        </main>
+                    </body>
+                </html>
+                """.strip()
+        )
 
 
 @app.post("/search", response_model=SearchResponse)
