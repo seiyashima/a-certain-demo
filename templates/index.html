@@ -55,8 +55,15 @@
               </div>
               <div class="composer-footer">
                 <div class="composer-tools">
-                  <button id="mock-target-all" class="tool-chip is-active" type="button">自動</button>
-                  <button id="mock-target-source" class="tool-chip" type="button">ソース別</button>
+                  <button id="mock-connector-toggle" class="tool-chip is-active" type="button" aria-expanded="false">コネクタ選択</button>
+                  <div id="mock-connector-menu" class="connector-menu" hidden>
+                    <label class="connector-menu-all">
+                      <input id="mock-select-all-connectors" type="checkbox" checked />
+                      <span>すべてのコネクタを有効にする</span>
+                    </label>
+                    <div id="mock-connector-options" class="connector-menu-options"></div>
+                    <p id="mock-connector-summary" class="connector-menu-summary">5 systems selected</p>
+                  </div>
                 </div>
                 <button id="mock-send" class="send-button" type="button">▶</button>
               </div>

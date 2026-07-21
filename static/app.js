@@ -15,8 +15,11 @@ const mockMessages = document.getElementById("mock-messages");
 const mockStatus = document.getElementById("mock-status");
 const mockQueryInput = document.getElementById("mock-query");
 const mockSendButton = document.getElementById("mock-send");
-const mockTargetAllButton = document.getElementById("mock-target-all");
-const mockTargetSourceButton = document.getElementById("mock-target-source");
+const mockConnectorToggle = document.getElementById("mock-connector-toggle");
+const mockConnectorMenu = document.getElementById("mock-connector-menu");
+const mockConnectorOptions = document.getElementById("mock-connector-options");
+const mockSelectAllConnectors = document.getElementById("mock-select-all-connectors");
+const mockConnectorSummary = document.getElementById("mock-connector-summary");
 const mockView = document.getElementById("mock-view");
 const threadShell = document.querySelector(".thread-shell");
 const statusView = document.getElementById("status-view");
@@ -49,10 +52,19 @@ const metaUptime = document.getElementById("meta-uptime");
 
 const state = {
   demoConfig: null,
+  demoSourceSamples: [],
   selectedProfileId: null,
-  targetScope: "all",
+  selectedMockSystems: new Set(),
   mode: "mock",
   statusLoaded: false,
+};
+
+const CONNECTOR_LABELS = {
+  servicenow: "ServicenowConnector",
+  workday: "WorkdayConnector",
+  "compliance-system": "CompliancesysConnector",
+  sharepoint: "SharepointConnector",
+  confluence: "ConfluenceConnector",
 };
 
 function setStatus(node, status, label) {
@@ -70,6 +82,91 @@ function clearNode(node) {
 function formatUptime(ms) {
   if (typeof ms !== "number") return "-";
   return ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`;
+}
+
+function getAllMockSystems() {
+  return state.demoSourceSamples.map((item) => item.system);
+}
+
+function normalizeMockSystemName(system) {
+  return String(system || "").trim().toLowerCase();
+}
+
+function getSelectedMockSystems() {
+  const all = getAllMockSystems();
+  if (all.length === 0 || state.selectedMockSystems.size === 0) {
+    return all;
+  }
+  return all.filter((item) => state.selectedMockSystems.has(item));
+}
+
+function updateConnectorSummary() {
+  if (!mockConnectorSummary) return;
+  const selected = getSelectedMockSystems();
+  const all = getAllMockSystems();
+
+  if (selected.length === all.length) {
+    mockConnectorSummary.textContent = `${all.length} systems selected`;
+    return;
+  }
+
+  const labels = selected.map((system) => CONNECTOR_LABELS[system] || system);
+  mockConnectorSummary.textContent = labels.join(", ");
+}
+
+function syncConnectorCheckboxState() {
+  if (!mockConnectorOptions) return;
+
+  const selected = new Set(getSelectedMockSystems());
+  const allSystems = getAllMockSystems();
+  if (mockSelectAllConnectors) {
+    mockSelectAllConnectors.checked = selected.size === allSystems.length;
+  }
+
+  Array.from(mockConnectorOptions.querySelectorAll("input[type='checkbox'][data-system]")).forEach((checkbox) => {
+    const system = checkbox.dataset.system;
+    checkbox.checked = selected.has(system);
+  });
+
+  updateConnectorSummary();
+}
+
+function renderConnectorOptions() {
+  if (!mockConnectorOptions) return;
+  clearNode(mockConnectorOptions);
+
+  state.demoSourceSamples.forEach((item) => {
+    const row = document.createElement("label");
+    row.className = "connector-menu-item";
+
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.dataset.system = item.system;
+    input.checked = state.selectedMockSystems.has(item.system);
+    input.addEventListener("change", () => {
+      if (input.checked) {
+        state.selectedMockSystems.add(item.system);
+      } else {
+        state.selectedMockSystems.delete(item.system);
+      }
+
+      if (state.selectedMockSystems.size === 0) {
+        state.selectedMockSystems = new Set(getAllMockSystems());
+      }
+      syncConnectorCheckboxState();
+    });
+
+    const name = document.createElement("span");
+    name.textContent = CONNECTOR_LABELS[item.system] || item.system;
+
+    const file = document.createElement("small");
+    file.textContent = item.source_sample_file;
+
+    row.append(input, name, file);
+    mockConnectorOptions.appendChild(row);
+  });
+
+  syncConnectorCheckboxState();
 }
 
 async function requestJson(url, options = {}) {
@@ -229,6 +326,15 @@ async function loadDemoConfig() {
   renderProfileSelection(payload.profiles);
 }
 
+async function loadDemoSourceSamples() {
+  const payload = await requestJson("/api/demo/source-samples");
+  state.demoSourceSamples = payload.systems || [];
+
+  const allSystems = getAllMockSystems();
+  state.selectedMockSystems = new Set(allSystems);
+  renderConnectorOptions();
+}
+
 function applyProfile(profileId, resetConversation = true) {
   if (!state.demoConfig) return;
 
@@ -240,9 +346,15 @@ function applyProfile(profileId, resetConversation = true) {
   updateMockHeader(profile);
   renderMockCoverage(profile);
   renderMockShortcuts(profile);
-  state.targetScope = profile.default_target_system || "all";
-  mockTargetAllButton.classList.toggle("is-active", state.targetScope === "all");
-  mockTargetSourceButton.classList.toggle("is-active", state.targetScope !== "all");
+
+  const defaultSystem = profile.default_target_system || "all";
+  if (defaultSystem === "all") {
+    state.selectedMockSystems = new Set(getAllMockSystems());
+  } else {
+    state.selectedMockSystems = new Set([defaultSystem]);
+  }
+  syncConnectorCheckboxState();
+
   mockQueryInput.placeholder = profile.suggested_queries[0] || "質問を入力してください";
 
   if (resetConversation) {
@@ -268,6 +380,9 @@ async function runMockChat() {
   }
 
   try {
+    const selectedSystems = getSelectedMockSystems();
+    const targetSystem = selectedSystems.length === 1 ? selectedSystems[0] : "all";
+
     const payload = await requestJson("/api/demo/mock/chat", {
       method: "POST",
       headers: {
@@ -277,7 +392,8 @@ async function runMockChat() {
       body: JSON.stringify({
         profile_id: profile.id,
         query,
-        target_system: state.targetScope,
+        target_system: targetSystem,
+        target_systems: selectedSystems,
       }),
     });
 
@@ -478,6 +594,7 @@ async function runRuntimeChecks() {
 
 async function initialize() {
   await loadDemoConfig();
+  await loadDemoSourceSamples();
   await fetchConnectors();
   resetMockConversation();
   setMode("mock");
@@ -506,20 +623,41 @@ async function initialize() {
     });
   }
 
-  if (mockTargetAllButton) {
-    mockTargetAllButton.addEventListener("click", () => {
-      state.targetScope = "all";
-      mockTargetAllButton.classList.add("is-active");
-      mockTargetSourceButton.classList.remove("is-active");
+  if (mockConnectorToggle && mockConnectorMenu) {
+    mockConnectorToggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const expanded = mockConnectorToggle.getAttribute("aria-expanded") === "true";
+      mockConnectorToggle.setAttribute("aria-expanded", expanded ? "false" : "true");
+      mockConnectorMenu.hidden = expanded;
     });
   }
 
-  if (mockTargetSourceButton) {
-    mockTargetSourceButton.addEventListener("click", () => {
-      const profile = getSelectedProfile();
-      state.targetScope = profile?.default_target_system || "all";
-      mockTargetSourceButton.classList.add("is-active");
-      mockTargetAllButton.classList.remove("is-active");
+  if (mockSelectAllConnectors) {
+    mockSelectAllConnectors.addEventListener("change", () => {
+      if (mockSelectAllConnectors.checked) {
+        state.selectedMockSystems = new Set(getAllMockSystems());
+      } else {
+        const current = getSelectedMockSystems();
+        state.selectedMockSystems = current.length > 1 ? new Set([current[0]]) : new Set(current);
+      }
+      syncConnectorCheckboxState();
+    });
+  }
+
+  document.addEventListener("click", (event) => {
+    if (!mockConnectorMenu || !mockConnectorToggle) return;
+    const target = event.target;
+    const insideMenu = mockConnectorMenu.contains(target);
+    const insideButton = mockConnectorToggle.contains(target);
+    if (!insideMenu && !insideButton) {
+      mockConnectorMenu.hidden = true;
+      mockConnectorToggle.setAttribute("aria-expanded", "false");
+    }
+  });
+
+  if (mockConnectorMenu) {
+    mockConnectorMenu.addEventListener("click", (event) => {
+      event.stopPropagation();
     });
   }
 

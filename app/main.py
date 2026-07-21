@@ -2,11 +2,18 @@ from __future__ import annotations
 
 import asyncio
 import hmac
+import json
 import logging
+import os
+import time
+import uuid
+from pathlib import Path
 from typing import Annotated, Optional
 
 from fastapi import Depends, FastAPI, Header, HTTPException, status
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
 
 from app import auth as auth_utils
 from app.config import ACLPolicy, Settings, get_settings
@@ -27,6 +34,358 @@ from app.models import (
 
 logger = logging.getLogger(__name__)
 app = FastAPI(title="Federated SaaS Search API")
+started_at = time.time()
+BASE_DIR = Path(__file__).resolve().parent.parent
+TEMPLATES_DIR = BASE_DIR / "templates"
+MOCK_TEMPLATE_PATH = TEMPLATES_DIR / "index.html"
+
+DEMO_MODES: list[dict[str, str]] = [
+    {
+        "key": "mock",
+        "label": "Gemini Enterprise Mock",
+        "description": "Profile-driven chat demo that mirrors the test data coverage",
+    },
+    {
+        "key": "status",
+        "label": "Cloud Run Status Check",
+        "description": "Current app: runtime checks plus connector search demo",
+    },
+]
+
+DEMO_PROFILES: dict[str, dict[str, object]] = {
+    "trader-jp": {
+        "id": "trader-jp",
+        "label": "Trader / JP",
+        "description": "Trading floor user in Japan covering client gift and Chinese wall scenarios.",
+        "subject": "trader-user",
+        "coverage_ids": ["sp-gift-9201", "sn-chat-7781", "wd-acc-3410"],
+        "suggested_queries": [
+            "Where is the policy on client gift limits?",
+            "What is the process for requesting trading system access?",
+            "Show the Chinese wall related trading communication.",
+        ],
+        "default_target_system": "all",
+    },
+    "investment-banking-jp": {
+        "id": "investment-banking-jp",
+        "label": "Investment Banking / JP",
+        "description": "Coverage team for the banking-side gift policy negative case.",
+        "subject": "ib-user",
+        "coverage_ids": ["sp-gift-9202"],
+        "suggested_queries": [
+            "Where is the policy on client gift limits?",
+            "Do I see the trading division version of the policy?",
+        ],
+        "default_target_system": "sharepoint",
+    },
+    "compliance-officer": {
+        "id": "compliance-officer",
+        "label": "Compliance Officer",
+        "description": "Reviewer role for exception, audit, and named-access memo scenarios.",
+        "subject": "compliance-head",
+        "coverage_ids": ["sn-exc-2409", "cmp-audit-8801", "cmp-gift-7710", "sn-chat-7781"],
+        "suggested_queries": [
+            "Who approved the exception for the Smith account?",
+            "Show the audit log for trading violations.",
+            "Open the named access memo for client gift exceptions.",
+        ],
+        "default_target_system": "all",
+    },
+    "hr-manager-jp": {
+        "id": "hr-manager-jp",
+        "label": "HR Manager / JP",
+        "description": "Direct-manager HR profile for confidential employee records.",
+        "subject": "hr-manager",
+        "coverage_ids": ["wd-hr-5501", "wd-hr-5502", "wd-hr-7701"],
+        "suggested_queries": [
+            "Who approved the termination process for John Smith?",
+            "Show the performance review for John Smith.",
+            "What HR file is available for this direct report?",
+        ],
+        "default_target_system": "workday",
+    },
+    "it-support": {
+        "id": "it-support",
+        "label": "IT Support",
+        "description": "Support profile for password reset and general ops content.",
+        "subject": "it-support",
+        "coverage_ids": ["sn-kb-3301", "wd-admin-9101", "cf-page-6001", "cf-page-6002", "cf-misc-7021"],
+        "suggested_queries": [
+            "How do I reset a password?",
+            "Is there a Workday admin password reset guide?",
+            "Find the search gateway runbook.",
+        ],
+        "default_target_system": "all",
+    },
+    "eu-privacy": {
+        "id": "eu-privacy",
+        "label": "EU Privacy",
+        "description": "GDPR profile for regional personal-data access.",
+        "subject": "privacy-lead",
+        "coverage_ids": ["sp-gdpr-6601", "wd-pay-3001"],
+        "suggested_queries": [
+            "How is EU employee personal data handled?",
+            "Show the payroll exception policy.",
+        ],
+        "default_target_system": "all",
+    },
+}
+
+DEMO_DOCUMENTS: list[dict[str, str]] = [
+    {
+        "id": "sp-gift-9201",
+        "title": "Client gift limits policy (Trading Division)",
+        "source": "sharepoint",
+        "answer": "The Trading Division client gift policy is in SharePoint under sp-gift-9201.",
+        "keywords": "client gift,gift limits,trading division,trading policy",
+    },
+    {
+        "id": "sp-gift-9202",
+        "title": "Client gift limits policy (Investment Banking)",
+        "source": "sharepoint",
+        "answer": "The banking-side policy is stored separately as sp-gift-9202.",
+        "keywords": "client gift,gift limits,investment banking,coverage teams",
+    },
+    {
+        "id": "sn-exc-2409",
+        "title": "Smith account exception approval ticket (2024)",
+        "source": "servicenow",
+        "answer": "Mary Johnson approved the Smith account exception on 2024-09-18.",
+        "keywords": "smith,exception,approval,mary johnson",
+    },
+    {
+        "id": "wd-acc-3410",
+        "title": "Role Enablement request flow",
+        "source": "workday",
+        "answer": "Request trading system access via Workday > Internal Mobility > Role Enablement.",
+        "keywords": "trading system access,role enablement,internal mobility",
+    },
+    {
+        "id": "sn-chat-7781",
+        "title": "Trading floor communication: Client Orion block trade",
+        "source": "servicenow",
+        "answer": "This document is a Chinese-wall-restricted trading communication for Client Orion.",
+        "keywords": "chinese wall,client orion,block trade,trading floor",
+    },
+    {
+        "id": "cmp-audit-8801",
+        "title": "Audit log: trading violations Q2",
+        "source": "compliance-system",
+        "answer": "The audit log for trading violations is cmp-audit-8801.",
+        "keywords": "audit,trading violations,who accessed what",
+    },
+    {
+        "id": "sp-gdpr-6601",
+        "title": "EU employee personal data handling standard",
+        "source": "sharepoint",
+        "answer": "EU employee personal data is handled in sp-gdpr-6601.",
+        "keywords": "gdpr,personal data,eu employee",
+    },
+    {
+        "id": "sn-kb-3301",
+        "title": "Password reset knowledge article for IT support",
+        "source": "servicenow",
+        "answer": "Password reset for employees is documented in ServiceNow as sn-kb-3301.",
+        "keywords": "password reset,it support,knowledge article",
+    },
+    {
+        "id": "wd-admin-9101",
+        "title": "Workday admin password reset procedure",
+        "source": "workday",
+        "answer": "Workday admin password reset is handled by wd-admin-9101.",
+        "keywords": "workday admin,password reset,tenant administrator",
+    },
+    {
+        "id": "cmp-gift-7710",
+        "title": "Specific access list: client gift review board memo",
+        "source": "compliance-system",
+        "answer": "This memo is limited to the named users defined in cmp-gift-7710.",
+        "keywords": "specific access,named users,client gift exceptions",
+    },
+    {
+        "id": "wd-pay-3001",
+        "title": "Payroll exception policy",
+        "source": "workday",
+        "answer": "The payroll exception policy is wd-pay-3001 and is EU-scoped.",
+        "keywords": "payroll exception,gdpr,eu",
+    },
+    {
+        "id": "wd-hr-5501",
+        "title": "Termination process for John Smith",
+        "source": "workday",
+        "answer": "The termination process for John Smith is documented in Workday as wd-hr-5501.",
+        "keywords": "termination,john smith,direct report",
+    },
+    {
+        "id": "wd-hr-5502",
+        "title": "Performance review: John Smith",
+        "source": "workday",
+        "answer": "The performance review for John Smith is available only to the direct manager and HR.",
+        "keywords": "performance review,john smith,direct manager",
+    },
+    {
+        "id": "wd-hr-7701",
+        "title": "HR cross-team confidential package",
+        "source": "workday",
+        "answer": "This package is restricted and requires matching HR manager scope.",
+        "keywords": "hr confidential,restricted package,manager scope",
+    },
+    {
+        "id": "cf-page-6001",
+        "title": "Runbook: search gateway failover",
+        "source": "confluence",
+        "answer": "The search gateway failover runbook is stored in Confluence as cf-page-6001.",
+        "keywords": "runbook,failover,search gateway",
+    },
+    {
+        "id": "cf-page-6002",
+        "title": "Postmortem template",
+        "source": "confluence",
+        "answer": "The postmortem template is cf-page-6002.",
+        "keywords": "postmortem,template,action item",
+    },
+    {
+        "id": "cf-misc-7021",
+        "title": "Confluence team handbook",
+        "source": "confluence",
+        "answer": "General team handbook is available in cf-misc-7021.",
+        "keywords": "team handbook,operations notes,general guide",
+    },
+]
+
+DEMO_DOCUMENT_INDEX = {document["id"]: document for document in DEMO_DOCUMENTS}
+DEMO_TARGET_SYSTEMS = {"servicenow", "workday", "compliance-system", "sharepoint", "confluence"}
+DEMO_SOURCE_SAMPLES: dict[str, dict[str, object]] = {
+    "servicenow": {
+        "file": "data/source_samples/servicenow_sample.json",
+        "sample": {
+            "system": "servicenow",
+            "records": [
+                {"id": "SN-001", "title": "Smith account exception approval", "type": "ticket", "status": "approved"}
+            ],
+        },
+    },
+    "workday": {
+        "file": "data/source_samples/workday_sample.json",
+        "sample": {
+            "system": "workday",
+            "records": [
+                {"id": "WD-001", "title": "Role Enablement request flow", "category": "internal_mobility", "status": "active"}
+            ],
+        },
+    },
+    "compliance-system": {
+        "file": "data/source_samples/compliance_system_sample.json",
+        "sample": {
+            "system": "compliance-system",
+            "records": [
+                {"id": "CMP-001", "title": "Audit log: trading violations Q2", "classification": "compliance", "status": "retained"}
+            ],
+        },
+    },
+    "sharepoint": {
+        "file": "data/source_samples/sharepoint_sample.json",
+        "sample": {
+            "system": "sharepoint",
+            "records": [
+                {"id": "SP-001", "title": "Client gift limits policy", "format": "pdf", "status": "published"}
+            ],
+        },
+    },
+    "confluence": {
+        "file": "data/source_samples/confluence_sample.json",
+        "sample": {
+            "system": "confluence",
+            "records": [
+                {"id": "CF-001", "title": "Runbook: search gateway failover", "space": "OPS", "status": "current"}
+            ],
+        },
+    },
+}
+
+
+class DemoMockChatRequest(BaseModel):
+    profile_id: str = Field(min_length=1)
+    query: str = Field(min_length=1)
+    target_system: str = Field(default="all")
+    target_systems: list[str] = Field(default_factory=list)
+
+
+def _profile_summary(profile: dict[str, object]) -> dict[str, object]:
+    coverage_ids = list(profile["coverage_ids"])
+    return {
+        "id": profile["id"],
+        "label": profile["label"],
+        "description": profile["description"],
+        "subject": profile["subject"],
+        "coverage_ids": coverage_ids,
+        "suggested_queries": profile["suggested_queries"],
+        "default_target_system": profile["default_target_system"],
+        "coverage_titles": [DEMO_DOCUMENT_INDEX[document_id]["title"] for document_id in coverage_ids if document_id in DEMO_DOCUMENT_INDEX],
+    }
+
+
+def _document_summary(document: dict[str, str], visible: bool) -> dict[str, object]:
+    return {
+        "id": document["id"],
+        "title": document["title"],
+        "source": document["source"],
+        "summary": document["answer"],
+        "visible": visible,
+    }
+
+
+def _find_mock_documents(query: str, selected_systems: set[str]) -> list[dict[str, str]]:
+    query_lower = query.lower()
+    matched: list[dict[str, str]] = []
+    for document in DEMO_DOCUMENTS:
+        if selected_systems and document["source"] not in selected_systems:
+            continue
+        keywords = [item.strip() for item in document["keywords"].split(",") if item.strip()]
+        if any(keyword in query_lower for keyword in keywords):
+            matched.append(document)
+    return matched
+
+
+def _build_mock_answer(profile: dict[str, object], query: str, selected_systems: set[str]) -> dict[str, object]:
+    matched_documents = _find_mock_documents(query, selected_systems)
+    visible_documents = [document for document in matched_documents if document["id"] in profile["coverage_ids"]]
+    blocked_documents = [document for document in matched_documents if document["id"] not in profile["coverage_ids"]]
+
+    if not selected_systems:
+        selected_systems = set(DEMO_TARGET_SYSTEMS)
+
+    if visible_documents:
+        reply = " ".join(document["answer"] for document in visible_documents)
+    elif matched_documents:
+        reply = f"{profile['label']} does not have access to the matched document(s) for this query."
+    else:
+        reply = f"No matching test document was found for '{query}'."
+
+    return {
+        "status": "ok",
+        "mode": "mock",
+        "profile": _profile_summary(profile),
+        "query": query,
+        "target_system": "all" if len(selected_systems) != 1 else next(iter(selected_systems)),
+        "target_systems": sorted(selected_systems),
+        "reply": reply,
+        "citations": [_document_summary(document, True) for document in visible_documents],
+        "blocked_documents": [_document_summary(document, False) for document in blocked_documents],
+        "matched_documents": [_document_summary(document, document in visible_documents) for document in matched_documents],
+        "source_samples": [
+            {
+                "system": system,
+                "source_sample_file": DEMO_SOURCE_SAMPLES[system]["file"],
+                "route": f"/api/demo/source-samples/{system}",
+            }
+            for system in sorted(selected_systems)
+            if system in DEMO_SOURCE_SAMPLES
+        ],
+        "suggested_queries": profile["suggested_queries"],
+        "elapsed_ms": 0,
+    }
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
 
 def get_api_key(
@@ -221,6 +580,21 @@ async def healthcheck() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/api/runtime")
+async def runtime() -> dict[str, object]:
+    return {
+        "status": "ok",
+        "service": os.getenv("K_SERVICE", "local"),
+        "revision": os.getenv("K_REVISION", "local"),
+        "configuration": os.getenv("K_CONFIGURATION", "local"),
+        "project": os.getenv("GOOGLE_CLOUD_PROJECT", "local"),
+        "environment": os.getenv("APP_ENV", "development"),
+        "demo_mode": os.getenv("DEMO_MODE", "echo"),
+        "connector_count": len(DEMO_TARGET_SYSTEMS),
+        "uptime_ms": int((time.time() - started_at) * 1000),
+    }
+
+
 @app.get("/", response_class=HTMLResponse)
 async def index() -> HTMLResponse:
         return HTMLResponse(
@@ -249,13 +623,22 @@ async def index() -> HTMLResponse:
                                 <p><a href="/docs">API ドキュメント</a></p>
                                 <p><a href="/healthz">Health check</a></p>
                                 <p><a href="/api/runtime">Runtime metadata</a></p>
+                                <p><a href="/mock">Gemini Enterprise mock</a></p>
+                                <p><a href="/api/demo/source-samples">5 systems sample JSON catalog</a></p>
                             </div>
-                            <p>起動確認は <code>/healthz</code> を参照してください。</p>
+                            <p>起動確認は <code>/healthz</code>、モック画面は <code>/mock</code> を参照してください。</p>
                         </main>
                     </body>
                 </html>
                 """.strip()
         )
+
+
+@app.get("/mock", response_class=HTMLResponse)
+async def gemini_mock() -> HTMLResponse:
+    if not MOCK_TEMPLATE_PATH.exists():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="mock template not found")
+    return HTMLResponse(MOCK_TEMPLATE_PATH.read_text(encoding="utf-8"))
 
 
 @app.post("/search", response_model=SearchResponse)
@@ -438,3 +821,70 @@ async def mock_ldap_bind(system_name: str) -> dict[str, str]:
         "username": get_mock_secret("SEARCH_APP_ETL_SECRET_COMPLIANCE_LDAP_USERNAME"),
         "password": get_mock_secret("SEARCH_APP_ETL_SECRET_COMPLIANCE_LDAP_PASSWORD"),
     }
+
+
+@app.get("/api/demo/config")
+async def demo_config() -> dict[str, object]:
+    return {
+        "status": "ok",
+        "modes": DEMO_MODES,
+        "default_mode": "mock",
+        "profiles": [_profile_summary(profile) for profile in DEMO_PROFILES.values()],
+    }
+
+
+@app.get("/api/demo/source-samples")
+async def demo_source_samples() -> dict[str, object]:
+    return {
+        "status": "ok",
+        "systems": [
+            {
+                "system": system,
+                "source_sample_file": payload["file"],
+                "route": f"/api/demo/source-samples/{system}",
+            }
+            for system, payload in DEMO_SOURCE_SAMPLES.items()
+        ],
+    }
+
+
+@app.get("/api/demo/source-samples/{system_name}")
+async def demo_source_sample_detail(system_name: str) -> dict[str, object]:
+    system = system_name.strip().lower()
+    if system not in DEMO_SOURCE_SAMPLES:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="unknown demo source system")
+
+    payload = DEMO_SOURCE_SAMPLES[system]
+    pretty = json.dumps(payload["sample"], ensure_ascii=False, indent=2)
+    return {
+        "status": "ok",
+        "system": system,
+        "source_sample_file": payload["file"],
+        "sample": payload["sample"],
+        "sample_pretty_json": pretty,
+    }
+
+
+@app.post("/api/demo/mock/chat")
+async def demo_mock_chat(request: DemoMockChatRequest) -> dict[str, object]:
+    profile_key = request.profile_id.strip().lower()
+    if profile_key not in DEMO_PROFILES:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"error": "unknown demo profile"})
+
+    selected_systems = {item.strip().lower() for item in request.target_systems if item.strip()}
+
+    target_system = request.target_system.strip().lower() or "all"
+    if target_system != "all":
+        selected_systems.add(target_system)
+
+    if not selected_systems:
+        selected_systems = set(DEMO_TARGET_SYSTEMS)
+
+    invalid_systems = [system for system in selected_systems if system not in DEMO_TARGET_SYSTEMS]
+    if invalid_systems:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"error": "target_system is invalid"})
+
+    started = time.time()
+    response = _build_mock_answer(DEMO_PROFILES[profile_key], request.query.strip(), selected_systems)
+    response["elapsed_ms"] = int((time.time() - started) * 1000)
+    return response
