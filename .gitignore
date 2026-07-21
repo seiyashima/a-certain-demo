@@ -252,3 +252,6 @@ test/
 
 # Local import datasets (not committed)
 data/
+
+# Local demo manual (not committed)
+design/demo-manual.md
