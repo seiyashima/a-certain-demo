@@ -14,7 +14,7 @@
         <mxCell id="lane-identity" value="Identity Sources" style="swimlane;horizontal=0;rounded=1;fillColor=#fef7e0;strokeColor=#fbbc04;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="1230" y="80" width="280" height="870" as="geometry"/>
         </mxCell>
-        <mxCell id="lane-target" value="GCS Data Store" style="swimlane;horizontal=0;rounded=1;fillColor=#e8f0fe;strokeColor=#4285f4;fontStyle=1;" vertex="1" parent="1">
+        <mxCell id="lane-target" value="Search Data Store / BigQuery" style="swimlane;horizontal=0;rounded=1;fillColor=#e8f0fe;strokeColor=#4285f4;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="1530" y="80" width="250" height="870" as="geometry"/>
         </mxCell>
 
@@ -40,7 +40,7 @@
         <mxCell id="fetch2" value="Extract Service: Workday (REST API)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#34a853;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="390" y="285" width="350" height="64" as="geometry"/>
         </mxCell>
-        <mxCell id="fetch3" value="Extract Service: Compliance (SOAP)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#34a853;fontStyle=1;" vertex="1" parent="1">
+        <mxCell id="fetch3" value="Extract Service: Compliance System (API)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#34a853;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="390" y="365" width="350" height="64" as="geometry"/>
         </mxCell>
         <mxCell id="fetch4" value="Extract Service: SharePoint (Microsoft Graph)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#34a853;fontStyle=1;" vertex="1" parent="1">
@@ -53,7 +53,7 @@
         <mxCell id="transform" value="Transform Service&#xa;Normalize schema + Prepare ACL fields" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a73e8;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="780" y="300" width="410" height="120" as="geometry"/>
         </mxCell>
-        <mxCell id="sync" value="Load Service&#xa;Attach ACL + scheduled/incremental/full load to GCS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#ea4335;fontStyle=1;" vertex="1" parent="1">
+        <mxCell id="sync" value="Load Service&#xa;Attach ACL + call Discovery Engine Load API&#xa;(destination: BigQuery table)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#ea4335;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="780" y="455" width="410" height="120" as="geometry"/>
         </mxCell>
         <mxCell id="checkpoint" value="Load State Cache&#xa;cursor / checkpoint / retry state" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9aa0a6;" vertex="1" parent="1">
@@ -63,36 +63,36 @@
         <mxCell id="okta" value="Okta SSO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8dc;strokeColor=#fbbc04;" vertex="1" parent="1">
           <mxGeometry x="1265" y="220" width="210" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="azuread" value="Azure AD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8dc;strokeColor=#fbbc04;" vertex="1" parent="1">
+        <mxCell id="azuread" value="Entra ID" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8dc;strokeColor=#fbbc04;" vertex="1" parent="1">
           <mxGeometry x="1265" y="310" width="210" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="ldap" value="LDAP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8dc;strokeColor=#fbbc04;" vertex="1" parent="1">
+        <mxCell id="ldap" value="Okta LDAP Agent" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8dc;strokeColor=#fbbc04;" vertex="1" parent="1">
           <mxGeometry x="1265" y="400" width="210" height="70" as="geometry"/>
         </mxCell>
         <mxCell id="secret" value="Secret Manager&#xa;connector credentials" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#9aa0a6;" vertex="1" parent="1">
           <mxGeometry x="1265" y="520" width="210" height="90" as="geometry"/>
         </mxCell>
 
-        <mxCell id="deapi" value="Cloud Storage API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4285f4;fontStyle=1;" vertex="1" parent="1">
+        <mxCell id="deapi" value="Discovery Engine Load API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4285f4;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="1545" y="300" width="200" height="90" as="geometry"/>
         </mxCell>
-        <mxCell id="datastore1" value="bucket-servicenow" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4285f4;" vertex="1" parent="1">
+        <mxCell id="datastore1" value="BigQuery: agent_search_documents" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4285f4;" vertex="1" parent="1">
           <mxGeometry x="1548" y="435" width="194" height="52" as="geometry"/>
         </mxCell>
-        <mxCell id="datastore2" value="bucket-workday" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4285f4;" vertex="1" parent="1">
+        <mxCell id="datastore2" value="classification + source metadata" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4285f4;" vertex="1" parent="1">
           <mxGeometry x="1548" y="499" width="194" height="52" as="geometry"/>
         </mxCell>
-        <mxCell id="datastore3" value="bucket-compliance" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4285f4;" vertex="1" parent="1">
+        <mxCell id="datastore3" value="ACL fields: allowed_*" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4285f4;" vertex="1" parent="1">
           <mxGeometry x="1548" y="563" width="194" height="52" as="geometry"/>
         </mxCell>
-        <mxCell id="datastore4" value="bucket-sharepoint" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4285f4;" vertex="1" parent="1">
+        <mxCell id="datastore4" value="search index document payload" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4285f4;" vertex="1" parent="1">
           <mxGeometry x="1548" y="627" width="194" height="52" as="geometry"/>
         </mxCell>
-        <mxCell id="datastore5" value="bucket-confluence" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4285f4;" vertex="1" parent="1">
+        <mxCell id="datastore5" value="incremental load history" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4285f4;" vertex="1" parent="1">
           <mxGeometry x="1548" y="691" width="194" height="52" as="geometry"/>
         </mxCell>
 
-        <mxCell id="summary" value="Connector scope: Extract -&gt; Transform -&gt; Load to continuously store ACL-attached mock data in GCS." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9aa0a6;" vertex="1" parent="1">
+        <mxCell id="summary" value="Connector scope: Extract -&gt; Transform -&gt; Load to persist ACL-attached documents through Discovery Engine Load API (BigQuery destination)." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9aa0a6;" vertex="1" parent="1">
           <mxGeometry x="30" y="910" width="1740" height="40" as="geometry"/>
         </mxCell>
 

@@ -187,6 +187,93 @@
         </ul>
       </section>
 
+      <section class="card" style="margin-top: 1rem">
+        <h2>7. テストケースと紐づくデータ</h2>
+        <p>
+          以下は、設計確認用の代表ケースと、その判定に使うテストデータ ID の対応表である。
+          いずれも <code>data/bigquery/agent_search_documents.ndjson</code> の文書 ID に対応し、
+          必要に応じて <code>data/bigquery/bigquery_upload_ready/*.ndjson</code> にも同じ内容が分割されている。
+        </p>
+        <table class="swimlane">
+          <thead>
+            <tr>
+              <th>テスト ID</th>
+              <th>シナリオ</th>
+              <th>想定ユーザ属性</th>
+              <th>期待ヒット</th>
+              <th>期待除外</th>
+              <th>狙い</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>TC-01</th>
+              <td>Client gift policy（Trading Division）を閲覧できること</td>
+              <td>trader / trading_floor / jp / markets</td>
+              <td>sp-gift-9201</td>
+              <td>sp-gift-9202</td>
+              <td>同じ「client gift policy」でも部門違いを区別する</td>
+            </tr>
+            <tr>
+              <th>TC-02</th>
+              <td>Smith exception approval の過去 ServiceNow 記録を見つけられること</td>
+              <td>compliance / relationship_manager / risk</td>
+              <td>sn-exc-2409</td>
+              <td>sn-chg-2001</td>
+              <td>例外承認と変更承認を分離する</td>
+            </tr>
+            <tr>
+              <th>TC-03</th>
+              <td>Trading system access の申請手順を見つけられること</td>
+              <td>trader / manager / markets</td>
+              <td>wd-acc-3410</td>
+              <td>wd-ben-3002</td>
+              <td>非直感カテゴリに格納された手順を検索できるか確認する</td>
+            </tr>
+            <tr>
+              <th>TC-04</th>
+              <td>Chinese wall 対象の取引連絡を扱えること</td>
+              <td>trader / compliance_officer / trading_floor</td>
+              <td>sn-chat-7781</td>
+              <td>cf-misc-7021</td>
+              <td>取引関連の文書だけを返し、無関係な一般文書を落とす</td>
+            </tr>
+            <tr>
+              <th>TC-05</th>
+              <td>HR confidential 文書を直属マネージャだけに見せること</td>
+              <td>hr_manager / manager / dept=hr / manager_id=mgr-john-001</td>
+              <td>wd-hr-5501, wd-hr-5502</td>
+              <td>wd-hr-7701</td>
+              <td>直属マネージャ条件と一般 HR 文書を分ける</td>
+            </tr>
+            <tr>
+              <th>TC-06</th>
+              <td>Compliance audit を見せるが HR 情報は漏らさないこと</td>
+              <td>compliance_officer / compliance / risk</td>
+              <td>cmp-audit-8801</td>
+              <td>wd-hr-5501, wd-hr-5502</td>
+              <td>監査文書と HR confidential を横断混在させない</td>
+            </tr>
+            <tr>
+              <th>TC-07</th>
+              <td>GDPR 対象文書は EU 条件でのみ返すこと</td>
+              <td>hr / privacy / eu</td>
+              <td>sp-gdpr-6601</td>
+              <td>wd-pay-3001</td>
+              <td>地域条件が一致しない文書を deny する</td>
+            </tr>
+            <tr>
+              <th>TC-08</th>
+              <td>IT support の password reset 手順を返すこと</td>
+              <td>it_support / ops / it</td>
+              <td>sn-kb-3301</td>
+              <td>wd-admin-9101</td>
+              <td>似た用途でも system/role で別文書に分かれることを確認する</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
       <section class="card footer">
         <a href="./index.html">設計ドキュメント一覧へ戻る</a>
       </section>

@@ -1,8 +1,27 @@
-const form = document.getElementById("search-form");
-const subjectInput = document.getElementById("subject");
-const targetSystemInput = document.getElementById("target-system");
-const queryInput = document.getElementById("query");
-const form = document.getElementById("search-form");
+const body = document.body;
+
+const modeMockButton = document.getElementById("mode-mock");
+const modeStatusButton = document.getElementById("mode-status");
+const profileSelect = document.getElementById("demo-profile");
+const avatarInitials = document.getElementById("avatar-initials");
+const mockGreeting = document.getElementById("mock-greeting");
+const mockTitle = document.getElementById("mock-title");
+const mockProfileTag = document.getElementById("mock-profile-tag");
+const mockProfileLabel = document.getElementById("mock-profile-label");
+const mockProfileDescription = document.getElementById("mock-profile-description");
+const mockCoverage = document.getElementById("mock-coverage");
+const mockShortcuts = document.getElementById("mock-shortcuts");
+const mockMessages = document.getElementById("mock-messages");
+const mockStatus = document.getElementById("mock-status");
+const mockQueryInput = document.getElementById("mock-query");
+const mockSendButton = document.getElementById("mock-send");
+const mockTargetAllButton = document.getElementById("mock-target-all");
+const mockTargetSourceButton = document.getElementById("mock-target-source");
+const mockView = document.getElementById("mock-view");
+const threadShell = document.querySelector(".thread-shell");
+const statusView = document.getElementById("status-view");
+
+const searchForm = document.getElementById("search-form");
 const subjectInput = document.getElementById("subject");
 const targetSystemInput = document.getElementById("target-system");
 const queryInput = document.getElementById("query");
@@ -28,10 +47,16 @@ const metaEnvironment = document.getElementById("meta-environment");
 const metaConnectorCount = document.getElementById("meta-connector-count");
 const metaUptime = document.getElementById("meta-uptime");
 
+const state = {
+  demoConfig: null,
+  selectedProfileId: null,
+  targetScope: "all",
+  mode: "mock",
+  statusLoaded: false,
+};
+
 function setStatus(node, status, label) {
-  if (!node) {
-    return;
-  }
+  if (!node) return;
   node.dataset.status = status;
   node.textContent = label;
 }
@@ -43,24 +68,226 @@ function clearNode(node) {
 }
 
 function formatUptime(ms) {
-  if (typeof ms !== "number") {
-    return "-";
-  }
-  if (ms < 1000) {
-    return `${ms} ms`;
-  }
-  return `${(ms / 1000).toFixed(1)} s`;
+  if (typeof ms !== "number") return "-";
+  return ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`;
 }
 
 async function requestJson(url, options = {}) {
   const response = await fetch(url, options);
   const body = await response.json().catch(() => ({}));
-
   if (!response.ok) {
-    throw new Error(body.error || body.detail?.error || "request failed");
+    throw new Error(body.error || body.detail?.error || body.detail || "request failed");
+  }
+  return body;
+}
+
+function setMode(mode) {
+  state.mode = mode;
+  body.dataset.mode = mode;
+  modeMockButton.classList.toggle("is-active", mode === "mock");
+  modeStatusButton.classList.toggle("is-active", mode === "status");
+  mockView.hidden = mode !== "mock";
+  statusView.hidden = mode !== "status";
+
+  if (mode === "status" && !state.statusLoaded) {
+    runRuntimeChecks();
+    state.statusLoaded = true;
+  }
+}
+
+function updateMockHeader(profile) {
+  if (!profile) return;
+
+  mockProfileTag.textContent = profile.default_target_system === "all" ? "auto" : profile.default_target_system;
+  mockProfileLabel.textContent = profile.label;
+  mockProfileDescription.textContent = profile.description;
+  avatarInitials.textContent = profile.label
+    .split(/[\s\/]+/)
+    .filter(Boolean)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
+  if (mockGreeting) {
+    mockGreeting.textContent = `こんにちは、 Seiya さん`;
   }
 
-  return body;
+  if (mockTitle) {
+    mockTitle.textContent = "何から始めますか?";
+  }
+}
+
+function renderMockCoverage(profile) {
+  clearNode(mockCoverage);
+  profile.coverage_titles.forEach((title) => {
+    const item = document.createElement("li");
+    item.textContent = title;
+    mockCoverage.appendChild(item);
+  });
+}
+
+function renderMockShortcuts(profile) {
+  clearNode(mockShortcuts);
+
+  profile.suggested_queries.forEach((query) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "shortcut-pill";
+    button.textContent = query;
+    button.addEventListener("click", () => {
+      mockQueryInput.value = query;
+      mockQueryInput.focus();
+    });
+    mockShortcuts.appendChild(button);
+  });
+}
+
+function renderProfileSelection(profiles) {
+  clearNode(profileSelect);
+  profiles.forEach((profile) => {
+    const option = document.createElement("option");
+    option.value = profile.id;
+    option.textContent = profile.label;
+    profileSelect.appendChild(option);
+  });
+
+  const preferred = profiles.find((profile) => profile.id === state.selectedProfileId) || profiles[0];
+  if (preferred) {
+    state.selectedProfileId = preferred.id;
+    profileSelect.value = preferred.id;
+    applyProfile(preferred.id, false);
+  }
+}
+
+function getSelectedProfile() {
+  return state.demoConfig?.profiles.find((profile) => profile.id === state.selectedProfileId) || null;
+}
+
+function resetMockConversation() {
+  clearNode(mockMessages);
+
+  const welcome = document.createElement("article");
+  welcome.className = "message-bubble assistant";
+  welcome.innerHTML = `
+    <p class="message-role">Gemini Enterprise</p>
+    <p class="message-text">質問を入力すると、選択中のプロフィールに対応したテストデータで回答します。</p>
+  `;
+  mockMessages.appendChild(welcome);
+}
+
+function appendMessage(role, text, metadata = []) {
+  const bubble = document.createElement("article");
+  bubble.className = `message-bubble ${role}`;
+
+  const roleLabel = document.createElement("p");
+  roleLabel.className = "message-role";
+  roleLabel.textContent = role === "user" ? "You" : "Gemini Enterprise";
+
+  const content = document.createElement("p");
+  content.className = "message-text";
+  content.textContent = text;
+
+  bubble.append(roleLabel, content);
+
+  if (metadata.length > 0) {
+    const chipRow = document.createElement("div");
+    chipRow.className = "citation-row";
+    metadata.forEach((item) => {
+      const chip = document.createElement("span");
+      chip.className = "citation-chip";
+      chip.textContent = item;
+      chipRow.appendChild(chip);
+    });
+    bubble.appendChild(chipRow);
+  }
+
+  mockMessages.appendChild(bubble);
+  mockMessages.scrollTop = mockMessages.scrollHeight;
+}
+
+function renderMockResponse(payload) {
+  if (threadShell) {
+    threadShell.classList.add("is-visible");
+  }
+
+  appendMessage("user", payload.query);
+
+  const citationLabels = payload.citations.map((citation) => `${citation.id} · ${citation.title}`);
+  const blockedLabels = payload.blocked_documents.map((document) => `${document.id} (blocked)`);
+  const assistantText = payload.reply;
+
+  appendMessage("assistant", assistantText, [...citationLabels, ...blockedLabels]);
+
+  setStatus(mockStatus, citationLabels.length > 0 ? "ok" : "pending", citationLabels.length > 0 ? "answered" : "no hit");
+}
+
+async function loadDemoConfig() {
+  const payload = await requestJson("/api/demo/config");
+  state.demoConfig = payload;
+  state.selectedProfileId = state.selectedProfileId || payload.profiles[0]?.id || null;
+  renderProfileSelection(payload.profiles);
+}
+
+function applyProfile(profileId, resetConversation = true) {
+  if (!state.demoConfig) return;
+
+  const profile = state.demoConfig.profiles.find((item) => item.id === profileId) || state.demoConfig.profiles[0];
+  if (!profile) return;
+
+  state.selectedProfileId = profile.id;
+  profileSelect.value = profile.id;
+  updateMockHeader(profile);
+  renderMockCoverage(profile);
+  renderMockShortcuts(profile);
+  state.targetScope = profile.default_target_system || "all";
+  mockTargetAllButton.classList.toggle("is-active", state.targetScope === "all");
+  mockTargetSourceButton.classList.toggle("is-active", state.targetScope !== "all");
+  mockQueryInput.placeholder = profile.suggested_queries[0] || "質問を入力してください";
+
+  if (resetConversation) {
+    resetMockConversation();
+  }
+}
+
+async function runMockChat() {
+  const profile = getSelectedProfile();
+  if (!profile) return;
+
+  const query = mockQueryInput.value.trim();
+  if (!query) {
+    setStatus(mockStatus, "error", "missing input");
+    return;
+  }
+
+  mockSendButton.disabled = true;
+  setStatus(mockStatus, "pending", "thinking");
+
+  if (threadShell) {
+    threadShell.classList.add("is-visible");
+  }
+
+  try {
+    const payload = await requestJson("/api/demo/mock/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Request-Id": crypto.randomUUID(),
+      },
+      body: JSON.stringify({
+        profile_id: profile.id,
+        query,
+        target_system: state.targetScope,
+      }),
+    });
+
+    renderMockResponse(payload);
+  } catch (error) {
+    setStatus(mockStatus, "error", "failed");
+    appendMessage("assistant", error.message);
+  } finally {
+    mockSendButton.disabled = false;
+  }
 }
 
 function renderConnectors(connectors) {
@@ -249,130 +476,67 @@ async function runRuntimeChecks() {
   }
 }
 
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  await runSearch();
-});
+async function initialize() {
+  await loadDemoConfig();
+  await fetchConnectors();
+  resetMockConversation();
+  setMode("mock");
 
-if (runSearchDemoButton) {
-  runSearchDemoButton.addEventListener("click", runSearch);
-}
-
-if (runChecksButton) {
-  runChecksButton.addEventListener("click", runRuntimeChecks);
-}
-
-fetchConnectors();
-runRuntimeChecks();
-      headers: {
-        "Content-Type": "application/json",
-        "X-Request-Id": crypto.randomUUID(),
-      },
-      body: JSON.stringify({ subject, query, target_system: targetSystem }),
-    });
-
-    renderResults(payload);
-  } catch (error) {
-    setStatus(resultStatus, "error", "failed");
-    resultSummary.textContent = error.message;
-    clearNode(results);
-  } finally {
-    if (searchButton) {
-      searchButton.disabled = false;
-    }
+  if (modeMockButton) {
+    modeMockButton.addEventListener("click", () => setMode("mock"));
   }
-}
-
-async function fetchConnectors() {
-  try {
-    const payload = await requestJson("/api/connectors");
-    renderConnectors(payload.connectors);
-    if (metaConnectorCount) {
-      metaConnectorCount.textContent = `${payload.connectors.length}`;
-    }
-  } catch (error) {
-    if (connectorStrip) {
-      connectorStrip.textContent = `Connector catalog unavailable: ${error.message}`;
-    }
-  }
-}
-
-async function runRuntimeChecks() {
-  if (runChecksButton) {
-    runChecksButton.disabled = true;
+  if (modeStatusButton) {
+    modeStatusButton.addEventListener("click", () => setMode("status"));
   }
 
-  setStatus(checkHealthz, "pending", "checking");
-  setStatus(checkRuntime, "pending", "checking");
-  setStatus(checkConnectors, "pending", "checking");
-  setStatus(checkSearch, "pending", "checking");
+  if (profileSelect) {
+    profileSelect.addEventListener("change", () => applyProfile(profileSelect.value));
+  }
 
-  try {
-    const healthzBody = await requestJson("/healthz");
-    setStatus(checkHealthz, healthzBody.status === "ok" ? "ok" : "error", healthzBody.status === "ok" ? "ok" : "failed");
+  if (mockSendButton) {
+    mockSendButton.addEventListener("click", runMockChat);
+  }
 
-    const runtimeBody = await requestJson("/api/runtime");
-    setStatus(checkRuntime, runtimeBody.status === "ok" ? "ok" : "error", runtimeBody.status === "ok" ? "ok" : "failed");
-
-    if (runtimeBody.status === "ok") {
-      metaService.textContent = runtimeBody.service || "-";
-      metaRevision.textContent = runtimeBody.revision || "-";
-      metaProject.textContent = runtimeBody.project || "-";
-      metaEnvironment.textContent = runtimeBody.environment || "-";
-      if (metaConnectorCount) {
-        metaConnectorCount.textContent = `${runtimeBody.connector_count ?? "-"}`;
+  if (mockQueryInput) {
+    mockQueryInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        runMockChat();
       }
-      metaUptime.textContent = formatUptime(runtimeBody.uptime_ms);
-    }
-
-    const connectorsBody = await requestJson("/api/connectors");
-    setStatus(checkConnectors, connectorsBody.status === "ok" ? "ok" : "error", connectorsBody.status === "ok" ? "ok" : "failed");
-
-    const searchBody = await requestJson("/api/search", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Request-Id": crypto.randomUUID(),
-      },
-      body: JSON.stringify({
-        subject: "admin-user",
-        query: "runbook policy incident",
-        target_system: "all",
-      }),
     });
-    setStatus(checkSearch, searchBody.status === "ok" ? "ok" : "error", searchBody.status === "ok" ? "ok" : "failed");
+  }
 
-    if (lastChecked) {
-      lastChecked.textContent = `Last checked: ${new Date().toLocaleString()}`;
-    }
-  } catch (error) {
-    setStatus(checkHealthz, "error", "failed");
-    setStatus(checkRuntime, "error", "failed");
-    setStatus(checkConnectors, "error", "failed");
-    setStatus(checkSearch, "error", "failed");
+  if (mockTargetAllButton) {
+    mockTargetAllButton.addEventListener("click", () => {
+      state.targetScope = "all";
+      mockTargetAllButton.classList.add("is-active");
+      mockTargetSourceButton.classList.remove("is-active");
+    });
+  }
 
-    if (lastChecked) {
-      lastChecked.textContent = `Check failed: ${error.message}`;
-    }
-  } finally {
-    if (runChecksButton) {
-      runChecksButton.disabled = false;
-    }
+  if (mockTargetSourceButton) {
+    mockTargetSourceButton.addEventListener("click", () => {
+      const profile = getSelectedProfile();
+      state.targetScope = profile?.default_target_system || "all";
+      mockTargetSourceButton.classList.add("is-active");
+      mockTargetAllButton.classList.remove("is-active");
+    });
+  }
+
+  if (searchForm) {
+    searchForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await runSearch();
+    });
+  }
+
+  if (runSearchDemoButton) {
+    runSearchDemoButton.addEventListener("click", runSearch);
+  }
+
+  if (runChecksButton) {
+    runChecksButton.addEventListener("click", runRuntimeChecks);
   }
 }
 
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  await runSearch();
-});
-
-if (runSearchDemoButton) {
-  runSearchDemoButton.addEventListener("click", runSearch);
-}
-
-if (runChecksButton) {
-  runChecksButton.addEventListener("click", runRuntimeChecks);
-}
-
-fetchConnectors();
-runRuntimeChecks();
+initialize();

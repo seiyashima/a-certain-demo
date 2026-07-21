@@ -3,135 +3,210 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>コネクタ死活確認</title>
+    <title>Gemini Enterprise Mock | a-certain-demo</title>
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
-  <body>
-    <main class="layout">
-      <header class="hero">
-        <p class="eyebrow">Cloud Run Search Gateway</p>
-        <h1>コネクタ死活確認</h1>
-        <p class="subtext">
-          ACL を通して 5 つの外部接続先へ検索クエリを配送するデモアプリ。
-        </p>
-      </header>
+  <body data-mode="mock">
+    <main class="app-shell">
+      <aside class="rail" aria-label="navigation rail">
+        <button class="rail-button" type="button" aria-label="menu">☰</button>
+        <button class="rail-button rail-button-active" type="button" aria-label="mock mode">✦</button>
+        <button class="rail-button" type="button" aria-label="settings">⚙</button>
+      </aside>
 
-      <section class="search-shell" aria-label="search gateway demo">
-        <article class="search-card">
-          <div class="card-head">
-            <div>
-              <p class="section-label">Search console</p>
-              <h2>検索要求を投げる</h2>
+      <section class="workspace">
+        <header class="topbar">
+          <div class="brand-wrap">
+            <div class="brand-title-row">
+              <h1 class="brand-title">Gemini Enterprise</h1>
+              <span class="brand-badge">標準</span>
             </div>
-            <button id="run-search-demo" type="button">Run Search Demo</button>
+            <p class="brand-subtitle">Gemini Enterprise モックと Cloud Run ステータスチェックを切り替えます。</p>
           </div>
 
-          <form id="search-form" class="search-form">
-            <div class="field-grid">
-              <label class="field" for="subject">
-                <span>Subject</span>
-                <input
-                  id="subject"
-                  name="subject"
-                  type="text"
-                  value="admin-user"
-                  placeholder="e.g. admin-user"
-                  required
-                />
-              </label>
-
-              <label class="field" for="target-system">
-                <span>Target system</span>
-                <select id="target-system" name="target_system">
-                  <option value="all">All connectors</option>
-                  <option value="servicenow">ServiceNow</option>
-                  <option value="workday">Workday</option>
-                  <option value="compliance-system">Compliance System</option>
-                  <option value="sharepoint">SharePoint</option>
-                  <option value="confluence">Confluence</option>
-                </select>
-              </label>
+          <div class="topbar-actions">
+            <div class="mode-switch" role="tablist" aria-label="mode switch">
+              <button id="mode-mock" class="mode-pill is-active" type="button" data-mode="mock">Gemini Enterpriseモック</button>
+              <button id="mode-status" class="mode-pill" type="button" data-mode="status">Cloud Runステータスチェック</button>
             </div>
 
-            <label class="field" for="query">
-              <span>Query</span>
-              <textarea
-                id="query"
-                name="query"
-                rows="4"
-                placeholder="Search for policy review, incidents, runbooks..."
-                required
-              >policy review</textarea>
+            <label class="profile-picker" for="demo-profile">
+              <span>ユーザプロフィール</span>
+              <select id="demo-profile"></select>
             </label>
 
-            <div class="actions">
-              <button id="search-button" type="submit">Search</button>
+            <button class="avatar-button" type="button" aria-label="user profile">
+              <span id="avatar-initials">S</span>
+            </button>
+          </div>
+        </header>
+
+        <section id="mock-view" class="mock-view" aria-label="Gemini Enterprise mock">
+          <div class="mock-main">
+            <div class="mock-hero">
+              <p class="greeting-line" id="mock-greeting">こんにちは、 Seiya さん</p>
+              <h2 id="mock-title">何から始めますか?</h2>
             </div>
-          </form>
 
-          <div class="connector-strip" id="connector-strip" aria-live="polite"></div>
-        </article>
-
-        <article class="results-card">
-          <div class="card-head">
-            <div>
-              <p class="section-label">Search results</p>
-              <h2>ACL と検索結果</h2>
+            <div class="composer-shell">
+              <div class="composer-row">
+                <span class="composer-icon" aria-hidden="true">🛡</span>
+                <input id="mock-query" type="text" placeholder="質問を入力してください。テストデータを使って回答します" />
+              </div>
+              <div class="composer-footer">
+                <div class="composer-tools">
+                  <button id="mock-target-all" class="tool-chip is-active" type="button">自動</button>
+                  <button id="mock-target-source" class="tool-chip" type="button">ソース別</button>
+                </div>
+                <button id="mock-send" class="send-button" type="button">▶</button>
+              </div>
             </div>
-            <span id="result-status" class="status-pill" data-status="idle">idle</span>
+
+            <section class="shortcut-block" aria-label="shortcuts">
+              <div class="shortcut-head">
+                <span>おすすめの質問</span>
+                <span class="shortcut-link">↗</span>
+              </div>
+              <div id="mock-shortcuts" class="shortcut-pills"></div>
+            </section>
           </div>
 
-          <p class="ops-note" id="result-summary">No search executed yet</p>
-          <div id="results" class="result-grid"></div>
-        </article>
+          <aside class="mock-sidecard">
+            <div class="sidecard-head">
+              <span>選択中プロフィール</span>
+              <span id="mock-profile-tag" class="status-tag">mock</span>
+            </div>
+            <h3 id="mock-profile-label">Trader / JP</h3>
+            <p id="mock-profile-description" class="sidecard-text">
+              Trading floor user in Japan covering client gift and Chinese wall scenarios.
+            </p>
+            <div class="coverage-panel">
+              <div class="coverage-title">今回のテストデータ</div>
+              <ul id="mock-coverage" class="coverage-list"></ul>
+            </div>
+          </aside>
+        </section>
+
+        <section class="thread-shell" aria-label="mock conversation">
+          <div class="thread-card">
+            <div class="thread-head">
+              <div>
+                <p class="section-label dark">Mock chat</p>
+                <h2>回答エリア</h2>
+              </div>
+              <span id="mock-status" class="status-pill" data-status="idle">idle</span>
+            </div>
+
+            <div id="mock-messages" class="mock-messages"></div>
+          </div>
+        </section>
+
+        <section id="status-view" class="status-view" hidden>
+          <section class="search-shell" aria-label="search gateway demo">
+            <article class="search-card">
+              <div class="card-head">
+                <div>
+                  <p class="section-label">Search console</p>
+                  <h2>検索要求を投げる</h2>
+                </div>
+                <button id="run-search-demo" type="button">Run Search Demo</button>
+              </div>
+
+              <form id="search-form" class="search-form">
+                <div class="field-grid">
+                  <label class="field" for="subject">
+                    <span>Subject</span>
+                    <input id="subject" name="subject" type="text" value="admin-user" placeholder="e.g. admin-user" required />
+                  </label>
+
+                  <label class="field" for="target-system">
+                    <span>Target system</span>
+                    <select id="target-system" name="target_system">
+                      <option value="all">All connectors</option>
+                      <option value="servicenow">ServiceNow</option>
+                      <option value="workday">Workday</option>
+                      <option value="compliance-system">Compliance System</option>
+                      <option value="sharepoint">SharePoint</option>
+                      <option value="confluence">Confluence</option>
+                    </select>
+                  </label>
+                </div>
+
+                <label class="field" for="query">
+                  <span>Query</span>
+                  <textarea id="query" name="query" rows="4" placeholder="Search for policy review, incidents, runbooks..." required>policy review</textarea>
+                </label>
+
+                <div class="actions">
+                  <button id="search-button" type="submit">Search</button>
+                </div>
+              </form>
+
+              <div class="connector-strip" id="connector-strip" aria-live="polite"></div>
+            </article>
+
+            <article class="results-card">
+              <div class="card-head">
+                <div>
+                  <p class="section-label">Search results</p>
+                  <h2>ACL と検索結果</h2>
+                </div>
+                <span id="result-status" class="status-pill" data-status="idle">idle</span>
+              </div>
+
+              <p class="ops-note" id="result-summary">No search executed yet</p>
+              <div id="results" class="result-grid"></div>
+            </article>
+          </section>
+
+          <section class="ops-card" aria-label="runtime checks">
+            <div class="ops-header">
+              <h2>Runtime Checks</h2>
+              <button id="run-checks" type="button">Run Checks</button>
+            </div>
+
+            <dl class="runtime-meta">
+              <div>
+                <dt>Service</dt>
+                <dd id="meta-service">-</dd>
+              </div>
+              <div>
+                <dt>Revision</dt>
+                <dd id="meta-revision">-</dd>
+              </div>
+              <div>
+                <dt>Project</dt>
+                <dd id="meta-project">-</dd>
+              </div>
+              <div>
+                <dt>Environment</dt>
+                <dd id="meta-environment">-</dd>
+              </div>
+              <div>
+                <dt>Connectors</dt>
+                <dd id="meta-connector-count">-</dd>
+              </div>
+              <div>
+                <dt>Uptime</dt>
+                <dd id="meta-uptime">-</dd>
+              </div>
+            </dl>
+
+            <ul class="check-list">
+              <li><span>GET /healthz</span><strong id="check-healthz">pending</strong></li>
+              <li><span>GET /api/runtime</span><strong id="check-runtime">pending</strong></li>
+              <li><span>GET /api/connectors</span><strong id="check-connectors">pending</strong></li>
+              <li><span>POST /api/search</span><strong id="check-search">pending</strong></li>
+            </ul>
+
+            <p class="ops-note" id="last-checked">Not checked yet</p>
+          </section>
+        </section>
+
+        <footer class="footer">
+          <small>Health endpoint: <code>/healthz</code></small>
+        </footer>
       </section>
-
-      <section class="ops-card" aria-label="runtime checks">
-        <div class="ops-header">
-          <h2>Runtime Checks</h2>
-          <button id="run-checks" type="button">Run Checks</button>
-        </div>
-
-        <dl class="runtime-meta">
-          <div>
-            <dt>Service</dt>
-            <dd id="meta-service">-</dd>
-          </div>
-          <div>
-            <dt>Revision</dt>
-            <dd id="meta-revision">-</dd>
-          </div>
-          <div>
-            <dt>Project</dt>
-            <dd id="meta-project">-</dd>
-          </div>
-          <div>
-            <dt>Environment</dt>
-            <dd id="meta-environment">-</dd>
-          </div>
-          <div>
-            <dt>Connectors</dt>
-            <dd id="meta-connector-count">-</dd>
-          </div>
-          <div>
-            <dt>Uptime</dt>
-            <dd id="meta-uptime">-</dd>
-          </div>
-        </dl>
-
-        <ul class="check-list">
-          <li><span>GET /healthz</span><strong id="check-healthz">pending</strong></li>
-          <li><span>GET /api/runtime</span><strong id="check-runtime">pending</strong></li>
-          <li><span>GET /api/connectors</span><strong id="check-connectors">pending</strong></li>
-          <li><span>POST /api/search</span><strong id="check-search">pending</strong></li>
-        </ul>
-
-        <p class="ops-note" id="last-checked">Not checked yet</p>
-      </section>
-
-      <footer class="footer">
-        <small>Health endpoint: <code>/healthz</code></small>
-      </footer>
     </main>
 
     <script src="/static/app.js"></script>

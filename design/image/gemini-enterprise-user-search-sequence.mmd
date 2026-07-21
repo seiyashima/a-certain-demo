@@ -5,9 +5,9 @@ sequenceDiagram
     participant STS as Google STS(sts.googleapis.com)
     participant AgentSearch as Gemini Enterprise Agent Search
     participant PolicyGuard as Cloud Run Policy Guard
-    participant DataStore as Data Store / ACL Filter
+    participant DataStore as Search Data Store (Discovery Engine)
 
-    Note over AgentSearch,DataStore: 検索時は格納済みデータと ACL メタデータで可否判定し、元システムへはリアルタイム問い合わせしない
+    Note over AgentSearch,DataStore: 検索時は格納済みデータと ACL メタデータを使って可否判定し、元システムへはリアルタイム問い合わせしない
     Note over AgentSearch,PolicyGuard: コンプライアンス/GDPR 区分のみ Cloud Run 側で二重チェック
 
     Browser->>Gemini: 検索クエリ送信

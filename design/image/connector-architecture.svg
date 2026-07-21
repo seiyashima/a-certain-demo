@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="1800" height="980" viewBox="0 0 1800 980" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">Connector architecture (ETL to GCS Data Store)</title>
-  <desc id="desc">Cloud Run connector architecture with five separate extract services, split identity sources, and ETL flow that attaches ACL metadata and stores mock documents in GCS.</desc>
+  <title id="title">Connector architecture (ETL to Search Data Store / BigQuery)</title>
+  <desc id="desc">Cloud Run connector architecture with five separate extract services, split identity sources, and ETL flow that attaches ACL metadata and loads documents through Discovery Engine API to BigQuery destination.</desc>
   <defs>
     <style>
       .bg { fill: #ffffff; }
@@ -20,8 +20,8 @@
   </defs>
 
   <rect class="bg" x="0" y="0" width="1800" height="980" />
-  <text class="title" x="50" y="60">Connector Architecture (ETL to GCS Data Store)</text>
-  <text class="subtitle" x="50" y="92">Cloud Run split services: five Extract workers + Transform + Load, with separate Okta / Azure AD / LDAP identity sources</text>
+  <text class="title" x="50" y="60">Connector Architecture (ETL to Search Data Store / BigQuery)</text>
+  <text class="subtitle" x="50" y="92">Cloud Run split services: five Extract workers + Transform + Load, with separate Okta / Entra ID / Okta LDAP Agent identity sources</text>
 
   <rect class="lane" x="30" y="120" width="300" height="770" fill="#ffffff" stroke="#dadce0" />
   <text class="label" x="55" y="155">5 Source Systems</text>
@@ -46,7 +46,7 @@
   <rect class="box" x="390" y="285" width="350" height="64" fill="#ffffff" stroke="#34a853" />
   <text class="text" x="410" y="324">Extract Service: Workday (REST API)</text>
   <rect class="box" x="390" y="365" width="350" height="64" fill="#ffffff" stroke="#34a853" />
-  <text class="text" x="410" y="404">Extract Service: Compliance (SOAP)</text>
+  <text class="text" x="410" y="404">Extract Service: Compliance System (API)</text>
   <rect class="box" x="390" y="445" width="350" height="64" fill="#ffffff" stroke="#34a853" />
   <text class="text" x="410" y="484">Extract Service: SharePoint (Microsoft Graph)</text>
   <rect class="box" x="390" y="525" width="350" height="64" fill="#ffffff" stroke="#34a853" />
@@ -61,7 +61,7 @@
   <rect class="box" x="780" y="455" width="410" height="120" fill="#ffffff" stroke="#ea4335" />
   <text class="label" x="805" y="490">Load Service</text>
   <text class="text" x="805" y="516">Attach/merge ACL metadata into load payload</text>
-  <text class="text" x="805" y="540">Scheduled / incremental / full load to GCS</text>
+  <text class="text" x="805" y="540">Call Discovery Engine Load API (BigQuery destination)</text>
 
   <rect class="box" x="780" y="610" width="410" height="90" fill="#ffffff" stroke="#9aa0a6" />
   <text class="text" x="805" y="646">Load State Cache: cursor, checkpoint, retry state</text>
@@ -72,28 +72,28 @@
   <rect class="box" x="1265" y="220" width="210" height="70" fill="#fff8dc" stroke="#fbbc04" />
   <text class="text" x="1288" y="261">Okta SSO</text>
   <rect class="box" x="1265" y="310" width="210" height="70" fill="#fff8dc" stroke="#fbbc04" />
-  <text class="text" x="1288" y="351">Azure AD</text>
+  <text class="text" x="1288" y="351">Entra ID</text>
   <rect class="box" x="1265" y="400" width="210" height="70" fill="#fff8dc" stroke="#fbbc04" />
-  <text class="text" x="1288" y="441">LDAP</text>
+  <text class="text" x="1288" y="441">Okta LDAP Agent</text>
   <rect class="box" x="1265" y="520" width="210" height="90" fill="#f8f9fa" stroke="#9aa0a6" />
   <text class="text" x="1288" y="556">Secret Manager</text>
   <text class="small" x="1288" y="579">connector credentials</text>
 
   <rect class="lane" x="1520" y="120" width="250" height="770" fill="#e8f0fe" stroke="#4285f4" />
-  <text class="label" x="1545" y="155">GCS Data Store</text>
+  <text class="label" x="1545" y="155">Search Data Store / BigQuery</text>
   <rect class="box" x="1545" y="300" width="200" height="90" fill="#ffffff" stroke="#4285f4" />
-  <text class="text" x="1568" y="338">Cloud Storage API</text>
-  <text class="small" x="1548" y="418">5 split buckets (per source)</text>
+  <text class="text" x="1568" y="338">Discovery Engine Load API</text>
+  <text class="small" x="1548" y="418">Persisted search documents and metadata</text>
   <rect class="box" x="1548" y="435" width="194" height="52" fill="#ffffff" stroke="#4285f4" />
-  <text class="small" x="1562" y="466">bucket-servicenow</text>
+  <text class="small" x="1562" y="466">BigQuery: agent_search_documents</text>
   <rect class="box" x="1548" y="499" width="194" height="52" fill="#ffffff" stroke="#4285f4" />
-  <text class="small" x="1562" y="530">bucket-workday</text>
+  <text class="small" x="1562" y="530">classification + source metadata</text>
   <rect class="box" x="1548" y="563" width="194" height="52" fill="#ffffff" stroke="#4285f4" />
-  <text class="small" x="1562" y="594">bucket-compliance</text>
+  <text class="small" x="1562" y="594">ACL fields: allowed_*</text>
   <rect class="box" x="1548" y="627" width="194" height="52" fill="#ffffff" stroke="#4285f4" />
-  <text class="small" x="1562" y="658">bucket-sharepoint</text>
+  <text class="small" x="1562" y="658">search index document payload</text>
   <rect class="box" x="1548" y="691" width="194" height="52" fill="#ffffff" stroke="#4285f4" />
-  <text class="small" x="1562" y="722">bucket-confluence</text>
+  <text class="small" x="1562" y="722">incremental load history</text>
 
   <path class="edge" d="M305 224 H390" />
   <path class="edge" d="M305 309 H390" />
@@ -122,5 +122,5 @@
   <path class="edge" d="M1475 565 H740" />
 
   <rect x="30" y="910" width="1740" height="50" rx="12" ry="12" fill="#ffffff" stroke="#e0e0e0" stroke-width="2" />
-  <text class="small" x="55" y="942">Connector scope only: Extract -> Transform -> Load to continuously store ACL-attached mock data in GCS.</text>
+  <text class="small" x="55" y="942">Connector scope only: Extract -> Transform -> Load through Discovery Engine Load API (BigQuery destination).</text>
 </svg>

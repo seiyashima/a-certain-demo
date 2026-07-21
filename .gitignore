@@ -249,3 +249,6 @@ notion/content/design_outline.md
 
 # Local test data
 test/
+
+# Local import datasets (not committed)
+data/
