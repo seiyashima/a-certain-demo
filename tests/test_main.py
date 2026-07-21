@@ -33,7 +33,7 @@ def test_mock_entrypoint_returns_landing_page():
 
     assert response.status_code == 200
     assert "Gemini Enterprise" in response.text
-    assert "Cloud Runステータスチェック" in response.text
+    assert "ログインユーザ" in response.text
 
 
 def test_demo_config_exposes_expected_test_users():
@@ -45,12 +45,12 @@ def test_demo_config_exposes_expected_test_users():
     body = response.json()
     profile_ids = {profile["id"] for profile in body["profiles"]}
     assert {
-        "trader-jp",
-        "investment-banking-jp",
-        "compliance-officer",
-        "hr-manager-jp",
-        "it-support",
-        "eu-privacy",
+        "john-smith",
+        "carol-tanaka",
+        "emma-sato",
+        "ryo-kobayashi",
+        "ken-ito",
+        "sophie-dupont",
     }.issubset(profile_ids)
 
 
@@ -83,7 +83,7 @@ def test_demo_mock_chat_can_retrieve_confluence_document_for_it_support():
     response = client.post(
         "/api/demo/mock/chat",
         json={
-            "profile_id": "it-support",
+            "profile_id": "ken-ito",
             "query": "Find the search gateway runbook",
             "target_system": "confluence",
         },
@@ -102,7 +102,7 @@ def test_demo_mock_chat_honors_multiple_selected_connectors():
     response = client.post(
         "/api/demo/mock/chat",
         json={
-            "profile_id": "it-support",
+            "profile_id": "ken-ito",
             "query": "Find the search gateway runbook and password reset",
             "target_systems": ["confluence", "servicenow"],
         },
@@ -116,3 +116,22 @@ def test_demo_mock_chat_honors_multiple_selected_connectors():
     assert "confluence" in cited_sources or "servicenow" in cited_sources
     linked_systems = {item["system"] for item in body["source_samples"]}
     assert linked_systems == {"confluence", "servicenow"}
+
+
+def test_john_smith_cannot_read_john_smith_hr_documents():
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/demo/mock/chat",
+        json={
+            "profile_id": "john-smith",
+            "query": "Show the performance review for John Smith",
+            "target_system": "workday",
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "ok"
+    assert len(body["citations"]) == 0
+    assert any(item["id"] == "wd-hr-5502" for item in body["blocked_documents"])

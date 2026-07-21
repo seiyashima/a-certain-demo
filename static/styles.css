@@ -45,11 +45,6 @@ button {
   cursor: pointer;
 }
 
-body[data-mode="mock"] .status-view,
-body[data-mode="status"] .mock-view {
-  display: none;
-}
-
 body[data-mode="mock"] .thread-shell {
   display: none;
 }
@@ -145,28 +140,20 @@ body[data-mode="mock"] .thread-shell.is-visible {
   justify-content: flex-end;
 }
 
-.mode-switch {
-  display: inline-flex;
-  gap: 6px;
-  padding: 5px;
-  border-radius: 999px;
-  background: #19191a;
-  border: 1px solid var(--line);
+.user-menu {
+  position: relative;
 }
 
-.mode-pill {
-  border: none;
-  border-radius: 999px;
-  padding: 0.55rem 0.9rem;
-  background: transparent;
-  color: #c8c8cc;
-  font-size: 0.78rem;
-  white-space: nowrap;
-}
-
-.mode-pill.is-active {
-  background: #f3f4f6;
-  color: #111111;
+.profile-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 260px;
+  border: 1px solid #3a3a3f;
+  border-radius: 14px;
+  background: #202124;
+  padding: 0.8rem;
+  z-index: 20;
 }
 
 .profile-picker {
@@ -201,14 +188,14 @@ body[data-mode="mock"] .thread-shell.is-visible {
 
 .mock-view {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 286px;
+  grid-template-columns: 1fr;
   gap: 22px;
   align-items: start;
   padding-top: 18px;
 }
 
 .mock-main {
-  width: min(100%, 760px);
+  width: min(100%, 900px);
   margin: 0 auto;
   display: grid;
   justify-items: center;
@@ -236,7 +223,7 @@ body[data-mode="mock"] .thread-shell.is-visible {
 }
 
 .composer-shell {
-  width: min(100%, 660px);
+  width: min(100%, 720px);
   border-radius: 28px;
   background: #1f1f20;
   border: 1px solid var(--line);
@@ -305,6 +292,20 @@ body[data-mode="mock"] .thread-shell.is-visible {
   color: #111111;
 }
 
+.icon-tool {
+  border: none;
+  border-radius: 999px;
+  padding: 0.4rem 0.65rem;
+  background: #2a2a2d;
+  color: #d9d9dd;
+  font-size: 0.85rem;
+  min-width: 30px;
+}
+
+.icon-tool.is-active {
+  background: #3a3b41;
+}
+
 .connector-menu {
   position: absolute;
   left: 0;
@@ -339,7 +340,6 @@ body[data-mode="mock"] .thread-shell.is-visible {
   display: grid;
   grid-template-columns: auto 1fr;
   column-gap: 0.55rem;
-  row-gap: 0.12rem;
   align-items: center;
   padding: 0.52rem 0.6rem;
   border-radius: 10px;
@@ -355,12 +355,6 @@ body[data-mode="mock"] .thread-shell.is-visible {
 
 .connector-menu-item span {
   font-size: 0.95rem;
-}
-
-.connector-menu-item small {
-  grid-column: 2 / 3;
-  color: #b7b8be;
-  font-size: 0.72rem;
 }
 
 .connector-menu-summary {
@@ -404,6 +398,20 @@ body[data-mode="mock"] .thread-shell.is-visible {
   color: #f0f0f2;
   border: 1px solid #3b3b3f;
   text-align: left;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.shortcut-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  font-size: 0.68rem;
+  background: #1b6ef3;
+  color: white;
 }
 
 .shortcut-pill:hover {

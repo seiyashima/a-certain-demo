@@ -53,35 +53,36 @@ DEMO_MODES: list[dict[str, str]] = [
 ]
 
 DEMO_PROFILES: dict[str, dict[str, object]] = {
-    "trader-jp": {
-        "id": "trader-jp",
-        "label": "Trader / JP",
-        "description": "Trading floor user in Japan covering client gift and Chinese wall scenarios.",
-        "subject": "trader-user",
-        "coverage_ids": ["sp-gift-9201", "sn-chat-7781", "wd-acc-3410"],
+    "john-smith": {
+        "id": "john-smith",
+        "label": "John Smith (Employee / Sales)",
+        "description": "General employee profile. Cannot access confidential HR records for John Smith.",
+        "subject": "john-smith",
+        "coverage_ids": ["sn-kb-3301", "cf-misc-7021", "sp-gift-9202"],
         "suggested_queries": [
-            "Where is the policy on client gift limits?",
-            "What is the process for requesting trading system access?",
-            "Show the Chinese wall related trading communication.",
+            "How do I reset my password?",
+            "Where is the team handbook?",
+            "Can I see my performance review?",
         ],
         "default_target_system": "all",
     },
-    "investment-banking-jp": {
-        "id": "investment-banking-jp",
-        "label": "Investment Banking / JP",
-        "description": "Coverage team for the banking-side gift policy negative case.",
-        "subject": "ib-user",
-        "coverage_ids": ["sp-gift-9202"],
+    "carol-tanaka": {
+        "id": "carol-tanaka",
+        "label": "Carol Tanaka (HR Manager / JP)",
+        "description": "HR manager profile. Can access John Smith HR documents.",
+        "subject": "hr-manager",
+        "coverage_ids": ["wd-hr-5501", "wd-hr-5502", "wd-hr-7701", "wd-pay-3001"],
         "suggested_queries": [
-            "Where is the policy on client gift limits?",
-            "Do I see the trading division version of the policy?",
+            "Who approved the termination process for John Smith?",
+            "Show the performance review for John Smith.",
+            "What HR file is available for this direct report?",
         ],
-        "default_target_system": "sharepoint",
+        "default_target_system": "workday",
     },
-    "compliance-officer": {
-        "id": "compliance-officer",
-        "label": "Compliance Officer",
-        "description": "Reviewer role for exception, audit, and named-access memo scenarios.",
+    "emma-sato": {
+        "id": "emma-sato",
+        "label": "Emma Sato (Compliance Officer / Risk)",
+        "description": "Compliance reviewer for exception approvals and audit logs.",
         "subject": "compliance-head",
         "coverage_ids": ["sn-exc-2409", "cmp-audit-8801", "cmp-gift-7710", "sn-chat-7781"],
         "suggested_queries": [
@@ -91,23 +92,23 @@ DEMO_PROFILES: dict[str, dict[str, object]] = {
         ],
         "default_target_system": "all",
     },
-    "hr-manager-jp": {
-        "id": "hr-manager-jp",
-        "label": "HR Manager / JP",
-        "description": "Direct-manager HR profile for confidential employee records.",
-        "subject": "hr-manager",
-        "coverage_ids": ["wd-hr-5501", "wd-hr-5502", "wd-hr-7701"],
+    "ryo-kobayashi": {
+        "id": "ryo-kobayashi",
+        "label": "Ryo Kobayashi (Trader / Markets JP)",
+        "description": "Trading floor profile for gift policy and Chinese wall scenarios.",
+        "subject": "trader-user",
+        "coverage_ids": ["sp-gift-9201", "sn-chat-7781", "wd-acc-3410"],
         "suggested_queries": [
-            "Who approved the termination process for John Smith?",
-            "Show the performance review for John Smith.",
-            "What HR file is available for this direct report?",
+            "Where is the policy on client gift limits?",
+            "What is the process for requesting trading system access?",
+            "Show the Chinese wall related trading communication.",
         ],
-        "default_target_system": "workday",
+        "default_target_system": "all",
     },
-    "it-support": {
-        "id": "it-support",
-        "label": "IT Support",
-        "description": "Support profile for password reset and general ops content.",
+    "ken-ito": {
+        "id": "ken-ito",
+        "label": "Ken Ito (IT Support / Operations)",
+        "description": "Support profile for password reset and operational runbooks.",
         "subject": "it-support",
         "coverage_ids": ["sn-kb-3301", "wd-admin-9101", "cf-page-6001", "cf-page-6002", "cf-misc-7021"],
         "suggested_queries": [
@@ -117,10 +118,10 @@ DEMO_PROFILES: dict[str, dict[str, object]] = {
         ],
         "default_target_system": "all",
     },
-    "eu-privacy": {
-        "id": "eu-privacy",
-        "label": "EU Privacy",
-        "description": "GDPR profile for regional personal-data access.",
+    "sophie-dupont": {
+        "id": "sophie-dupont",
+        "label": "Sophie Dupont (EU Privacy Lead)",
+        "description": "GDPR profile for EU personal-data and payroll exception controls.",
         "subject": "privacy-lead",
         "coverage_ids": ["sp-gdpr-6601", "wd-pay-3001"],
         "suggested_queries": [
