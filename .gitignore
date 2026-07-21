@@ -232,14 +232,18 @@ __marimo__/
 design/private/
 !design/image/
 design/image/*
-!design/image/overall-architecture.drawio
-!design/image/overall-architecture.svg
-!design/image/connector-architecture.drawio
-!design/image/connector-architecture.svg
-!design/image/gemini-enterprise-okta-sequence.mmd
+!design/image/svg_drawio/
+!design/image/svg_drawio/overall-architecture.drawio
+!design/image/svg_drawio/overall-architecture.svg
+!design/image/svg_drawio/connector-architecture.drawio
+!design/image/svg_drawio/connector-architecture.svg
+!design/image/mmd/
+!design/image/mmd/gemini-enterprise-okta-sequence.mmd
 !design/image/gemini-enterprise-okta-sequence.html
-!design/image/gemini-enterprise-user-search-sequence.mmd
+!design/image/mmd/gemini-enterprise-user-search-sequence.mmd
 !design/image/gemini-enterprise-user-search-sequence.html
+!design/image/mmd/gemini-enterprise-connector-acl-sequence.mmd
+!design/image/gemini-enterprise-connector-acl-sequence.html
 
 # Local scratch notes
 memo.md

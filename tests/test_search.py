@@ -1,8 +1,12 @@
+import asyncio
+
 import pytest
 from fastapi.testclient import TestClient
 from fastapi import HTTPException
 
 from app.config import Settings, get_settings
+from app.config import SaaSProvider
+from app.connectors import SaaSSearchConnector
 from app.main import app, auth_utils, get_connectors
 from app.models import AuthContext, SearchResult
 
@@ -422,6 +426,8 @@ def test_search_filters_results_by_document_region_and_department_metadata() -> 
                 "name": "docs",
                 "base_url": "https://docs.example.com",
                 "bearer_token": "docs-token",
+
+
             }
         ],
         acl_enabled=True,
@@ -668,3 +674,48 @@ def test_search_rejects_invalid_okta_bearer_token(monkeypatch: pytest.MonkeyPatc
     )
 
     assert response.status_code == 401
+
+
+def test_saas_search_connector_uses_configured_bearer_token(monkeypatch) -> None:
+    captured: dict[str, object] = {}
+
+    class _Response:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, object]:
+            return {"items": []}
+
+    class _Client:
+        def __init__(self, timeout: float) -> None:
+            self.timeout = timeout
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return None
+
+        async def get(self, url, params=None, headers=None):
+            captured["url"] = url
+            captured["params"] = params
+            captured["headers"] = headers
+            return _Response()
+
+    monkeypatch.setattr("app.connectors.httpx.AsyncClient", _Client)
+
+    connector = SaaSSearchConnector(
+        SaaSProvider(
+            name="docs",
+            base_url="https://docs.example.com",
+            bearer_token="docs-token",
+        ),
+        timeout=1.0,
+    )
+
+    results = asyncio.run(connector.search("hello", 10))
+
+    assert results == []
+    assert captured["url"] == "https://docs.example.com/search"
+    assert captured["params"] == {"q": "hello", "limit": 10}
+    assert captured["headers"] == {"Authorization": "Bearer docs-token"}

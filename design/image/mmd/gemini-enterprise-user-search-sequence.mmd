@@ -11,8 +11,8 @@ sequenceDiagram
     Note over AgentSearch,PolicyGuard: コンプライアンス/GDPR 区分のみ Cloud Run 側で二重チェック
 
     Browser->>Gemini: 検索クエリ送信
-    Gemini->>Gemini: session の IdToken を検証
-    Gemini->>STS: IdToken を workforce identity の認証情報に変換要求
+    Gemini->>Gemini: session の IdToken (JWT: Okta claims含む) を検証
+    Gemini->>STS: IdToken (JWT: Okta claims含む) を workforce identity の認証情報に変換要求
     STS-->>Gemini: 結果取得
     Gemini->>AgentSearch: Workforce Identity の認証情報で検索要求
     AgentSearch->>DataStore: ACL を適用して対象ドキュメントを検索

@@ -1,0 +1,27 @@
+sequenceDiagram
+    autonumber
+    participant Browser as ブラウザ
+    participant Gemini as Gemini Enterprise
+    participant AgentSearch as Agent Search
+    participant DataStore as Data Store (BigQuery)
+    participant CoreGA as Core Generative Answers
+
+    Browser->>Gemini: 検索クエリ + 選択コネクタを送信
+    Gemini->>Gemini: session の IdToken (JWT: Okta claims含む) を検証
+    Gemini->>AgentSearch: 検索クエリ + 選択コネクタ + Okta claims を渡す
+
+    loop 選択された各コネクタ
+      AgentSearch->>DataStore: コネクタ条件で候補データ + acl_info を取得
+      DataStore-->>AgentSearch: 候補データ + acl_info
+      AgentSearch->>AgentSearch: acl_info と Okta claims を突合
+      Note right of AgentSearch: groups / department / region / position / managerId を比較
+      alt 認可あり
+        AgentSearch-->>Gemini: 返却可能データのみを返す
+      else 認可なし
+        AgentSearch-->>Gemini: 非認可データを除外して返す
+      end
+    end
+
+    Gemini->>CoreGA: 認可済みデータのみで回答生成を依頼
+    CoreGA-->>Gemini: 回答ドラフト + 根拠情報
+    Gemini-->>Browser: 最終回答を返却

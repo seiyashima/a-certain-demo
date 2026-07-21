@@ -69,11 +69,11 @@ sequenceDiagram
     Browser->>Okta: ログインページ要求
     Okta-->>Browser: ログインページ返却
     Browser->>Okta: ログイン実施
-    Okta-->>Browser: 認証 code を付与して Gemini Enterprise の callback URL へリダイレクト
+    Okta-->>Browser: 認証コードを付与して Gemini Enterprise の callback URL へリダイレクト
     Browser->>Gemini: callback URL へ遷移
-    Gemini->>Okta: code から IdToken 返却を要求
-    Okta-->>Gemini: IdToken 返却
-    Gemini->>Browser: IdToken を session に入れて認証後ページへリダイレクト
+    Gemini->>Okta: code から IdToken (JWT: Okta claims含む) 返却を要求
+    Okta-->>Gemini: IdToken (JWT: Okta claims含む) 返却
+    Gemini->>Browser: IdToken (JWT: Okta claims含む) を session に入れて認証後ページへリダイレクト
 
           </div>
         </div>
@@ -93,11 +93,11 @@ sequenceDiagram
     Browser-&gt;&gt;Okta: ログインページ要求
     Okta--&gt;&gt;Browser: ログインページ返却
     Browser-&gt;&gt;Okta: ログイン実施
-    Okta--&gt;&gt;Browser: 認証 code を付与して Gemini Enterprise の callback URL へリダイレクト
+    Okta--&gt;&gt;Browser: 認証コードを付与して Gemini Enterprise の callback URL へリダイレクト
     Browser-&gt;&gt;Gemini: callback URL へ遷移
-    Gemini-&gt;&gt;Okta: code から IdToken 返却を要求
-    Okta--&gt;&gt;Gemini: IdToken 返却
-    Gemini-&gt;&gt;Browser: IdToken を session に入れて認証後ページへリダイレクト
+    Gemini-&gt;&gt;Okta: code から IdToken (JWT: Okta claims含む) 返却を要求
+    Okta--&gt;&gt;Gemini: IdToken (JWT: Okta claims含む) 返却
+    Gemini-&gt;&gt;Browser: IdToken (JWT: Okta claims含む) を session に入れて認証後ページへリダイレクト
 
           </div>
       </section>

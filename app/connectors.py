@@ -16,7 +16,7 @@ class SaaSSearchConnector:
             response = await client.get(
                 f"{self.provider.base_url}{self.provider.search_path}",
                 params={"q": query, "limit": min(limit, self.provider.result_limit)},
-                headers={"Authorization": f"******"},
+                headers={"Authorization": f"Bearer {self.provider.bearer_token}"},
             )
             response.raise_for_status()
             payload = response.json()
