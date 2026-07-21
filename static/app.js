@@ -194,8 +194,9 @@ function applyProfile(profileId, resetConversation = true) {
   state.selectedProfileId = profile.id;
   if (profileSelect) profileSelect.value = profile.id;
 
-  if (avatarInitials) avatarInitials.textContent = getProfileInitials(profile.label);
-  if (mockGreeting) mockGreeting.textContent = `こんにちは、 ${profile.label.split("(")[0].trim()} さん`;
+  const displayName = (profile.display_name || profile.label || "").split("(")[0].trim();
+  if (avatarInitials) avatarInitials.textContent = getProfileInitials(displayName || profile.label);
+  if (mockGreeting) mockGreeting.textContent = `こんにちは、 ${displayName} さん`;
   if (mockTitle) mockTitle.textContent = "作業を始めましょう";
   if (mockQueryInput) {
     mockQueryInput.placeholder = profile.suggested_queries?.[0] || "質問を入力してください";

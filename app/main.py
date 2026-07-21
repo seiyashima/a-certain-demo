@@ -314,9 +314,12 @@ class DemoMockChatRequest(BaseModel):
 
 def _profile_summary(profile: dict[str, object]) -> dict[str, object]:
     coverage_ids = list(profile["coverage_ids"])
+    label = str(profile["label"])
+    display_name = label.split("(")[0].strip()
     return {
         "id": profile["id"],
-        "label": profile["label"],
+        "label": label,
+        "display_name": display_name,
         "description": profile["description"],
         "subject": profile["subject"],
         "coverage_ids": coverage_ids,

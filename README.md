@@ -24,6 +24,7 @@ Cloud Run 上で動かすことを前提にした、複数 SaaS 横断検索と 
 - `design/index.html`: 設計ドキュメントの入口
 - `design/system-overview.html`: システム全体の概要
 - `design/connector-architecture.html`: Connector / ETL 側の考え方
+- `design/demo-manual.md`: Gemini Enterprise モックのデモ実施マニュアル
 - `.env.example`: 必要な設定項目の一覧
 
 ## ローカル起動
