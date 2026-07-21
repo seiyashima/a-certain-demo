@@ -103,6 +103,21 @@ body[data-mode="mock"] .thread-shell.is-visible {
   color: white;
 }
 
+.new-chat-button {
+  background: linear-gradient(160deg, #2a79ff 0%, #1a5ce8 100%);
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(27, 95, 248, 0.45);
+}
+
+.new-chat-button:hover {
+  background: linear-gradient(160deg, #3483ff 0%, #2266ef 100%);
+}
+
+.new-chat-icon {
+  width: 19px;
+  height: 19px;
+}
+
 .workspace {
   flex: 1;
   padding: 14px 18px 20px;
@@ -230,6 +245,15 @@ body[data-mode="mock"] .thread-shell.is-visible {
   margin: 0 0 6px;
   font-size: 1.05rem;
   color: #e9e9eb;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.52rem;
+}
+
+.gemini-mark {
+  width: 18px;
+  height: 18px;
+  filter: drop-shadow(0 0 6px rgba(126, 178, 255, 0.5));
 }
 
 .mock-hero h2 {

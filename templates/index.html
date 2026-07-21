@@ -9,7 +9,12 @@
   <body data-mode="mock">
     <main class="app-shell">
       <aside class="rail" aria-label="navigation rail">
-        <button id="new-chat-button" class="rail-button" type="button" aria-label="new chat (reset view)">✎</button>
+        <button id="new-chat-button" class="rail-button new-chat-button" type="button" aria-label="new chat (reset view)">
+          <svg class="new-chat-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M7.1 12.6a5 5 0 0 0 8.85 2.04" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M18.45 15.2l-.34 2.87-2.83-.59" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
         <button class="rail-button rail-button-active" type="button" aria-label="mock mode">✦</button>
         <button class="rail-button" type="button" aria-label="settings">⚙</button>
       </aside>
@@ -42,7 +47,20 @@
         <section id="mock-view" class="mock-view" aria-label="Gemini Enterprise mock">
           <div class="mock-main">
             <div class="mock-hero">
-              <p class="greeting-line" id="mock-greeting">こんにちは、 Seiya さん</p>
+              <p class="greeting-line">
+                <svg class="gemini-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M12 2c.9 4.4 4.6 8.1 9 9-4.4.9-8.1 4.6-9 9-.9-4.4-4.6-8.1-9-9 4.4-.9 8.1-4.6 9-9Z" fill="url(#g-main)"/>
+                  <defs>
+                    <linearGradient id="g-main" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                      <stop offset="0" stop-color="#3b82f6"/>
+                      <stop offset="0.32" stop-color="#22c55e"/>
+                      <stop offset="0.66" stop-color="#f59e0b"/>
+                      <stop offset="1" stop-color="#ef4444"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <span id="mock-greeting">こんにちは、 Seiya さん</span>
+              </p>
               <h2 id="mock-title">何から始めますか?</h2>
             </div>
 
