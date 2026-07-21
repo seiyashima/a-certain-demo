@@ -79,6 +79,19 @@ DEMO_PROFILES: dict[str, dict[str, object]] = {
         ],
         "default_target_system": "workday",
     },
+    "david-lee": {
+        "id": "david-lee",
+        "label": "David Lee (Direct Manager / Sales)",
+        "description": "Direct manager profile. Can access direct-report HR files for John Smith.",
+        "subject": "direct-manager",
+        "coverage_ids": ["wd-hr-5501", "wd-hr-5502"],
+        "suggested_queries": [
+            "Who approved the termination process for John Smith?",
+            "Show the performance review for John Smith.",
+            "Which HR records are available for my direct report?",
+        ],
+        "default_target_system": "workday",
+    },
     "emma-sato": {
         "id": "emma-sato",
         "label": "Emma Sato (Compliance Officer / Risk)",
@@ -214,7 +227,7 @@ DEMO_DOCUMENTS: list[dict[str, str]] = [
         "id": "wd-hr-5501",
         "title": "Termination process for John Smith",
         "source": "workday",
-        "answer": "The termination process for John Smith is documented in Workday as wd-hr-5501.",
+        "answer": "John Smith's termination process was approved by Direct Manager David Lee and HR Manager Carol Tanaka on 2024-03-12, with final HR workflow sign-off recorded in Workday.",
         "keywords": "termination,john smith,direct report",
     },
     {
@@ -360,7 +373,10 @@ def _build_mock_answer(profile: dict[str, object], query: str, selected_systems:
         selected_systems = set(DEMO_TARGET_SYSTEMS)
 
     if visible_documents:
-        reply = " ".join(document["answer"] for document in visible_documents)
+        reply = "\n".join(
+            f"- {document['title']} ({document['id']}): {document['answer']}"
+            for document in visible_documents
+        )
     elif matched_documents:
         reply = f"{profile['label']} does not have access to the matched document(s) for this query."
     else:

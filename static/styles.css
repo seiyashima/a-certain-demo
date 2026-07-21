@@ -49,6 +49,15 @@ body[data-mode="mock"] .thread-shell {
   display: none;
 }
 
+body[data-mode="mock"].conversation-active .thread-shell {
+  display: block;
+  flex: 1;
+}
+
+body[data-mode="mock"].conversation-active .mock-view {
+  display: none;
+}
+
 body[data-mode="mock"] .thread-shell.is-visible {
   display: block;
 }
@@ -481,6 +490,14 @@ body[data-mode="mock"] .thread-shell.is-visible {
 .thread-shell {
   display: block;
   padding-top: 2px;
+}
+
+body[data-mode="mock"].conversation-active .thread-shell {
+  padding-top: 0;
+}
+
+body[data-mode="mock"].conversation-active .thread-card {
+  min-height: calc(100vh - 140px);
 }
 
 .thread-card,

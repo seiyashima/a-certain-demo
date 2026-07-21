@@ -1,4 +1,5 @@
 const profileSelect = document.getElementById("demo-profile");
+const newChatButton = document.getElementById("new-chat-button");
 const avatarButton = document.getElementById("avatar-button");
 const avatarInitials = document.getElementById("avatar-initials");
 const profilePanel = document.getElementById("profile-panel");
@@ -24,6 +25,7 @@ const state = {
   demoSourceSamples: [],
   selectedProfileId: null,
   selectedMockSystems: new Set(),
+  isSending: false,
 };
 
 const CONNECTOR_LABELS = {
@@ -89,8 +91,8 @@ function renderShortcuts() {
   if (!mockShortcuts) return;
   clearNode(mockShortcuts);
 
-  const selected = getSelectedMockSystems();
-  selected.forEach((system) => {
+  const systemsToRender = getAllMockSystems();
+  systemsToRender.forEach((system) => {
     const chip = document.createElement("button");
     chip.type = "button";
     chip.className = "shortcut-pill";
@@ -202,14 +204,16 @@ function applyProfile(profileId, resetConversation = true) {
     mockQueryInput.placeholder = profile.suggested_queries?.[0] || "質問を入力してください";
   }
 
-  const defaultSystem = profile.default_target_system || "all";
-  state.selectedMockSystems = defaultSystem === "all" ? new Set(getAllMockSystems()) : new Set([defaultSystem]);
+  state.selectedMockSystems = new Set(getAllMockSystems());
   syncConnectorCheckboxState();
 
   if (resetConversation) resetMockConversation();
 }
 
 function resetMockConversation() {
+  document.body.classList.remove("conversation-active");
+  if (threadShell) threadShell.classList.remove("is-visible");
+
   if (!mockMessages) return;
 
   clearNode(mockMessages);
@@ -252,6 +256,7 @@ function appendMessage(role, text, metadata = []) {
 }
 
 function renderMockResponse(payload) {
+  document.body.classList.add("conversation-active");
   if (threadShell) threadShell.classList.add("is-visible");
 
   appendMessage("user", payload.query);
@@ -265,6 +270,7 @@ function renderMockResponse(payload) {
 async function runMockChat() {
   const profile = getSelectedProfile();
   if (!profile || !mockQueryInput || !mockSendButton) return;
+  if (state.isSending) return;
 
   const query = mockQueryInput.value.trim();
   if (!query) {
@@ -272,9 +278,9 @@ async function runMockChat() {
     return;
   }
 
+  state.isSending = true;
   mockSendButton.disabled = true;
   setStatus(mockStatus, "pending", "thinking");
-  if (threadShell) threadShell.classList.add("is-visible");
 
   try {
     const selectedSystems = getSelectedMockSystems();
@@ -299,6 +305,7 @@ async function runMockChat() {
     setStatus(mockStatus, "error", "failed");
     appendMessage("assistant", error.message);
   } finally {
+    state.isSending = false;
     mockSendButton.disabled = false;
   }
 }
@@ -318,6 +325,17 @@ async function loadDemoSourceSamples() {
 }
 
 function bindUiEvents() {
+  if (newChatButton) {
+    newChatButton.addEventListener("click", () => {
+      resetMockConversation();
+      if (mockQueryInput) {
+        mockQueryInput.value = "";
+        mockQueryInput.focus();
+      }
+      setStatus(mockStatus, "idle", "idle");
+    });
+  }
+
   if (profileSelect) {
     profileSelect.addEventListener("change", () => applyProfile(profileSelect.value));
   }

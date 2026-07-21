@@ -47,11 +47,32 @@ def test_demo_config_exposes_expected_test_users():
     assert {
         "john-smith",
         "carol-tanaka",
+        "david-lee",
         "emma-sato",
         "ryo-kobayashi",
         "ken-ito",
         "sophie-dupont",
     }.issubset(profile_ids)
+
+
+def test_hr_manager_answer_contains_approval_detail_for_termination_question():
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/demo/mock/chat",
+        json={
+            "profile_id": "carol-tanaka",
+            "query": "Who approved the termination process for John Smith?",
+            "target_system": "workday",
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "ok"
+    assert "David Lee" in body["reply"]
+    assert "Carol Tanaka" in body["reply"]
+    assert any(item["id"] == "wd-hr-5501" for item in body["citations"])
 
 
 def test_demo_source_sample_catalog_contains_five_systems():
