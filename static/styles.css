@@ -54,6 +54,15 @@ body[data-mode="mock"].conversation-active .thread-shell {
   flex: 1;
 }
 
+body[data-mode="mock"].conversation-active .topbar,
+body[data-mode="mock"].conversation-active .footer {
+  display: none;
+}
+
+body[data-mode="mock"].conversation-active .workspace {
+  gap: 0;
+}
+
 body[data-mode="mock"].conversation-active .mock-view {
   display: none;
 }
@@ -497,7 +506,7 @@ body[data-mode="mock"].conversation-active .thread-shell {
 }
 
 body[data-mode="mock"].conversation-active .thread-card {
-  min-height: calc(100vh - 140px);
+  min-height: calc(100vh - 28px);
 }
 
 .thread-card,
